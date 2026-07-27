@@ -14,16 +14,280 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ledger_blocks: {
+        Row: {
+          actor_id_number: string | null
+          block_hash: string
+          block_index: number
+          contract_address: string | null
+          created_at: string
+          event_type: string
+          id: string
+          notarization_id: string
+          payload: Json
+          previous_hash: string
+          tx_hash: string
+        }
+        Insert: {
+          actor_id_number?: string | null
+          block_hash: string
+          block_index: number
+          contract_address?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          notarization_id: string
+          payload?: Json
+          previous_hash: string
+          tx_hash: string
+        }
+        Update: {
+          actor_id_number?: string | null
+          block_hash?: string
+          block_index?: number
+          contract_address?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          notarization_id?: string
+          payload?: Json
+          previous_hash?: string
+          tx_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_blocks_notarization_id_fkey"
+            columns: ["notarization_id"]
+            isOneToOne: false
+            referencedRelation: "notarizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notarization_signers: {
+        Row: {
+          attestation_hash: string | null
+          attestation_note: string | null
+          attested_at: string | null
+          created_at: string
+          id: string
+          notarization_id: string
+          notary_id_number: string
+          notary_user_id: string
+          status: Database["public"]["Enums"]["signer_status"]
+        }
+        Insert: {
+          attestation_hash?: string | null
+          attestation_note?: string | null
+          attested_at?: string | null
+          created_at?: string
+          id?: string
+          notarization_id: string
+          notary_id_number: string
+          notary_user_id: string
+          status?: Database["public"]["Enums"]["signer_status"]
+        }
+        Update: {
+          attestation_hash?: string | null
+          attestation_note?: string | null
+          attested_at?: string | null
+          created_at?: string
+          id?: string
+          notarization_id?: string
+          notary_id_number?: string
+          notary_user_id?: string
+          status?: Database["public"]["Enums"]["signer_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notarization_signers_notarization_id_fkey"
+            columns: ["notarization_id"]
+            isOneToOne: false
+            referencedRelation: "notarizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notarizations: {
+        Row: {
+          chain_name: string
+          contract_address: string | null
+          created_at: string
+          created_by: string
+          document_bytes: number | null
+          document_hash: string
+          document_name: string
+          id: string
+          jurisdiction: string | null
+          matter_reference: string | null
+          required_attestations: number
+          sealed_at: string | null
+          status: Database["public"]["Enums"]["notarization_status"]
+          title: string
+          updated_at: string
+          verification_code: string
+        }
+        Insert: {
+          chain_name?: string
+          contract_address?: string | null
+          created_at?: string
+          created_by: string
+          document_bytes?: number | null
+          document_hash: string
+          document_name: string
+          id?: string
+          jurisdiction?: string | null
+          matter_reference?: string | null
+          required_attestations?: number
+          sealed_at?: string | null
+          status?: Database["public"]["Enums"]["notarization_status"]
+          title: string
+          updated_at?: string
+          verification_code?: string
+        }
+        Update: {
+          chain_name?: string
+          contract_address?: string | null
+          created_at?: string
+          created_by?: string
+          document_bytes?: number | null
+          document_hash?: string
+          document_name?: string
+          id?: string
+          jurisdiction?: string | null
+          matter_reference?: string | null
+          required_attestations?: number
+          sealed_at?: string | null
+          status?: Database["public"]["Enums"]["notarization_status"]
+          title?: string
+          updated_at?: string
+          verification_code?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          commission_expires_on: string | null
+          commission_state: string | null
+          created_at: string
+          full_name: string
+          id: string
+          is_certified: boolean
+          notary_id_number: string
+          public_key_fingerprint: string | null
+          updated_at: string
+        }
+        Insert: {
+          commission_expires_on?: string | null
+          commission_state?: string | null
+          created_at?: string
+          full_name?: string
+          id: string
+          is_certified?: boolean
+          notary_id_number: string
+          public_key_fingerprint?: string | null
+          updated_at?: string
+        }
+        Update: {
+          commission_expires_on?: string | null
+          commission_state?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_certified?: boolean
+          notary_id_number?: string
+          public_key_fingerprint?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proofs_of_service: {
+        Row: {
+          id: string
+          issued_at: string
+          issuing_notary_id_number: string
+          merkle_root: string
+          notarization_id: string
+          overseer_findings: Json
+          overseer_summary: string
+          overseer_verdict: string
+          proof_number: string
+          tx_hash: string
+        }
+        Insert: {
+          id?: string
+          issued_at?: string
+          issuing_notary_id_number: string
+          merkle_root: string
+          notarization_id: string
+          overseer_findings?: Json
+          overseer_summary: string
+          overseer_verdict: string
+          proof_number: string
+          tx_hash: string
+        }
+        Update: {
+          id?: string
+          issued_at?: string
+          issuing_notary_id_number?: string
+          merkle_root?: string
+          notarization_id?: string
+          overseer_findings?: Json
+          overseer_summary?: string
+          overseer_verdict?: string
+          proof_number?: string
+          tx_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proofs_of_service_notarization_id_fkey"
+            columns: ["notarization_id"]
+            isOneToOne: true
+            referencedRelation: "notarizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_notary_id: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_participant: {
+        Args: { _notarization_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "notary" | "registrar" | "admin"
+      notarization_status: "draft" | "collecting" | "sealed" | "rejected"
+      signer_status: "pending" | "attested" | "declined"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +414,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["notary", "registrar", "admin"],
+      notarization_status: ["draft", "collecting", "sealed", "rejected"],
+      signer_status: ["pending", "attested", "declined"],
+    },
   },
 } as const
