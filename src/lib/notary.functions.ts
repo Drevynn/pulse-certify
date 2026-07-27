@@ -395,9 +395,18 @@ export const runOverseerReview = createServerFn({ method: "POST" })
         eventType: "OVERSEER_WITHHELD",
         actorIdNumber: "AI-OVERSEER",
         contractAddress: matter.contract_address,
-        payload: { summary: review.summary, findings: review.findings },
+        payload: {
+          summary: review.summary,
+          mandates: review.mandates,
+          findings: review.findings,
+        },
       });
-      return { verdict: review.verdict, summary: review.summary, findings: review.findings };
+      return {
+        verdict: review.verdict,
+        summary: review.summary,
+        mandates: review.mandates,
+        findings: review.findings,
+      };
     }
 
     const { data: filer } = await context.supabase
@@ -420,6 +429,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
         issuingNotaryIdNumber: issuingId,
         merkleRoot: root,
         summary: review.summary,
+        mandates: review.mandates,
       },
     });
 
@@ -443,6 +453,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
     return {
       verdict: review.verdict,
       summary: review.summary,
+      mandates: review.mandates,
       findings: review.findings,
       proofNumber,
     };
