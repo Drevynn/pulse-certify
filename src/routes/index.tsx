@@ -42,7 +42,7 @@ const STEPS = [
   {
     n: "03",
     title: "Oversee",
-    body: "Once the last attestation lands, the AI overseer reconciles commissions, certification status and chain linkage before anything can be issued.",
+    body: "Once the last attestation lands, the AI overseer discharges three mandates: legality of every signature, clarity of the client's clearance request, and a double-check of each notary's credentials.",
   },
   {
     n: "04",
@@ -158,7 +158,7 @@ function Landing() {
                 </p>
                 <ul className="mt-6 space-y-2 font-mono text-xs text-muted-foreground">
                   <li>· Proof number bound to the notary ID</li>
-                  <li>· Overseer verdict, summary and findings of record</li>
+                  <li>· Verdict and findings under each of the three mandates</li>
                   <li>· Merkle root over all attestations</li>
                 </ul>
               </article>

@@ -328,10 +328,11 @@ export const runOverseerReview = createServerFn({ method: "POST" })
 
     const { data: profiles } = await context.supabase
       .from("profiles")
-      .select("id, is_certified, commission_state, commission_expires_on")
-      .in("id", list.map((s) => s.notary_user_id));
+      .select("id, full_name, notary_id_number, is_certified, commission_state, commission_expires_on")
+      .in("id", [...list.map((s) => s.notary_user_id), matter.created_by]);
 
     const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
+    const filerProfile = profileById.get(matter.created_by);
 
     const { data: blocks } = await context.supabase
       .from("ledger_blocks")
@@ -351,14 +352,23 @@ export const runOverseerReview = createServerFn({ method: "POST" })
     const review = await engine.runOverseer({
       title: matter.title,
       jurisdiction: matter.jurisdiction,
+      matterReference: matter.matter_reference,
       documentName: matter.document_name,
       documentHash: matter.document_hash,
       requiredAttestations: matter.required_attestations,
       createdAt: matter.created_at,
+      filingNotary: {
+        notaryIdNumber: filerProfile?.notary_id_number ?? "PN-UNKNOWN",
+        fullName: filerProfile?.full_name ?? "Unknown",
+        isCertified: Boolean(filerProfile?.is_certified),
+        commissionState: filerProfile?.commission_state ?? null,
+        commissionExpiresOn: filerProfile?.commission_expires_on ?? null,
+      },
       signers: list.map((s) => {
         const p = profileById.get(s.notary_user_id);
         return {
           notaryIdNumber: s.notary_id_number,
+          fullName: p?.full_name ?? "Unknown",
           status: s.status,
           isCertified: Boolean(p?.is_certified),
           commissionState: p?.commission_state ?? null,
@@ -366,6 +376,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
           attestedAt: s.attested_at,
           note: s.attestation_note,
           attestationHash: s.attestation_hash,
+          onPanelOf: matter.id,
         };
       }),
       chain: {
@@ -376,6 +387,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
       },
     });
 
+
     if (review.verdict !== "issued") {
       await engine.appendBlock({
         admin: supabaseAdmin,
@@ -383,9 +395,18 @@ export const runOverseerReview = createServerFn({ method: "POST" })
         eventType: "OVERSEER_WITHHELD",
         actorIdNumber: "AI-OVERSEER",
         contractAddress: matter.contract_address,
-        payload: { summary: review.summary, findings: review.findings },
+        payload: {
+          summary: review.summary,
+          mandates: review.mandates,
+          findings: review.findings,
+        },
       });
-      return { verdict: review.verdict, summary: review.summary, findings: review.findings };
+      return {
+        verdict: review.verdict,
+        summary: review.summary,
+        mandates: review.mandates,
+        findings: review.findings,
+      };
     }
 
     const { data: filer } = await context.supabase
@@ -408,6 +429,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
         issuingNotaryIdNumber: issuingId,
         merkleRoot: root,
         summary: review.summary,
+        mandates: review.mandates,
       },
     });
 
@@ -431,6 +453,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
     return {
       verdict: review.verdict,
       summary: review.summary,
+      mandates: review.mandates,
       findings: review.findings,
       proofNumber,
     };

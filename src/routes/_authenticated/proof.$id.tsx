@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getNotarization } from "@/lib/notary.functions";
+import { OVERSEER_MANDATES } from "@/lib/overseer-mandates";
 import { PulseSeal } from "@/components/PulseSeal";
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +31,7 @@ interface Finding {
   severity?: string;
   code?: string;
   detail?: string;
+  mandate?: string;
 }
 
 function Line({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
@@ -136,14 +138,40 @@ function ProofPage() {
           <h2 className="doc-h2">II. Overseer determination</h2>
           <Line label="Verdict" value={proof.overseer_verdict.toUpperCase()} />
           <p className="doc-body">{proof.overseer_summary}</p>
-          {findings.length ? (
+          {OVERSEER_MANDATES.map((m) => {
+            const own = findings.filter((f) => f.mandate === m.key);
+            const state = own.some((f) => f.severity === "blocking")
+              ? "FAILED"
+              : own.some((f) => f.severity === "warning")
+                ? "FLAGGED"
+                : "CLEARED";
+            return (
+              <div key={m.key} className="mt-4">
+                <Line label={`Mandate ${m.ordinal} · ${m.label}`} value={state} />
+                <ul className="doc-findings">
+                  {(own.length
+                    ? own
+                    : [{ severity: "info", detail: "No exception recorded." } as Finding]
+                  ).map((f, i) => (
+                    <li key={i}>
+                      <span className="font-mono">[{f.severity ?? "note"}]</span>{" "}
+                      {f.detail ?? f.code}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+          {findings.some((f) => !f.mandate) ? (
             <ul className="doc-findings">
-              {findings.map((f, i) => (
-                <li key={i}>
-                  <span className="font-mono">[{f.severity ?? "note"}]</span>{" "}
-                  {f.detail ?? f.code}
-                </li>
-              ))}
+              {findings
+                .filter((f) => !f.mandate)
+                .map((f, i) => (
+                  <li key={i}>
+                    <span className="font-mono">[{f.severity ?? "note"}]</span>{" "}
+                    {f.detail ?? f.code}
+                  </li>
+                ))}
             </ul>
           ) : null}
         </section>

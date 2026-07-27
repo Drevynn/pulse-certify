@@ -9,6 +9,11 @@
  */
 
 import { sha256Hex } from "./hash";
+import { OVERSEER_MANDATES } from "./overseer-mandates";
+import type { MandateVerdict, OverseerMandate } from "./overseer-mandates";
+
+export { OVERSEER_MANDATES };
+export type { MandateVerdict, OverseerMandate };
 
 export const GENESIS_HASH = "0".repeat(64);
 export const REGISTRY_NAME = "PulseChain Notary Registry";
@@ -17,6 +22,7 @@ export type OverseerVerdict = "issued" | "withheld";
 
 export interface OverseerFinding {
   code: string;
+  mandate: OverseerMandate;
   severity: "info" | "warning" | "blocking";
   detail: string;
 }
@@ -24,8 +30,10 @@ export interface OverseerFinding {
 export interface OverseerResult {
   verdict: OverseerVerdict;
   summary: string;
+  mandates: Record<OverseerMandate, MandateVerdict>;
   findings: OverseerFinding[];
 }
+
 
 /** Deterministic registry contract address for a matter. */
 export async function deriveContractAddress(notarizationId: string): Promise<string> {
@@ -141,12 +149,21 @@ export function verifyChainLinkage(
 export interface OverseerInput {
   title: string;
   jurisdiction: string | null;
+  matterReference: string | null;
   documentName: string;
   documentHash: string;
   requiredAttestations: number;
   createdAt: string;
+  filingNotary: {
+    notaryIdNumber: string;
+    fullName: string;
+    isCertified: boolean;
+    commissionState: string | null;
+    commissionExpiresOn: string | null;
+  };
   signers: Array<{
     notaryIdNumber: string;
+    fullName: string;
     status: string;
     isCertified: boolean;
     commissionState: string | null;
@@ -154,6 +171,7 @@ export interface OverseerInput {
     attestedAt: string | null;
     note: string | null;
     attestationHash: string | null;
+    onPanelOf: string | null;
   }>;
   chain: {
     blockCount: number;
@@ -166,20 +184,37 @@ export interface OverseerInput {
 const OVERSEER_MODEL = "google/gemini-3.5-flash";
 
 const OVERSEER_SYSTEM = `You are the Pulse Notary AI Overseer, the final independent control in a zero-trust notarization pipeline.
-You are asked to authorise (or withhold) a Proof of Service after all certified notaries have submitted attestations.
+After every certified notary on the panel has responded, you authorise or withhold the Proof of Service.
 
-Apply these rules strictly:
-1. Every assigned notary must have status "attested". Any "pending" or "declined" signer is BLOCKING.
-2. The number of attestations must meet or exceed requiredAttestations. Shortfall is BLOCKING.
-3. Every attesting notary must be certified (isCertified true). An uncertified attestor is BLOCKING.
-4. A notary commission that expired on or before the attestation date is BLOCKING.
-5. A broken ledger chain (chain.intact false) is BLOCKING.
-6. Duplicate notary identifiers, missing attestation hashes, or attestations recorded before the matter was created are BLOCKING.
-7. Missing jurisdiction, absent attestation notes, or a commission expiring within 60 days are WARNINGS, not blockers.
+You hold exactly three standing mandates. Every finding you emit MUST be filed under one of them.
+
+MANDATE I - "signature_legality": oversee the legality of each notarial signature.
+  - Any signer whose status is not "attested" (pending or declined) is BLOCKING.
+  - Attestations recorded fewer than requiredAttestations is BLOCKING.
+  - A missing attestationHash means the signature is not cryptographically bound to the document digest: BLOCKING.
+  - An attestation timestamped before createdAt, or a broken ledger chain (chain.intact false), means the signature sequence cannot be relied on: BLOCKING.
+  - A signature executed outside the matter's jurisdiction, or an attestation with no note of what was witnessed, is a WARNING.
+
+MANDATE II - "request_clarity": oversee that the client's clearance request is complete and free of confusion about the notary.
+  - Duplicate notary identifiers on the panel, or a signer who is not clearly assigned to this matter, is BLOCKING.
+  - A panel where the acting notary cannot be told apart from another (identical names with no distinguishing identifier, or identifiers that do not match PN-YY-NNNNNN form) is BLOCKING.
+  - A missing title, missing document name, or missing jurisdiction leaves the request ambiguous: WARNING.
+  - A missing matterReference or client-side reference is a WARNING, not a blocker.
+
+MANDATE III - "credential_validity": double-check every notary's credentials so the finished contract is valid.
+  - Any attesting notary with isCertified false is BLOCKING.
+  - A commission that expired on or before the attestation date is BLOCKING.
+  - A commission with no state of record for an attesting notary is BLOCKING.
+  - The filing notary must also be certified and in commission: otherwise BLOCKING.
+  - A commission expiring within 60 days of today is a WARNING.
 
 Respond with JSON only, matching exactly:
-{"verdict":"issued"|"withheld","summary":"one or two plain sentences for the record","findings":[{"code":"SCREAMING_SNAKE_CASE","severity":"info"|"warning"|"blocking","detail":"one sentence"}]}
-Set verdict to "issued" only when there is not a single blocking finding. Always include at least one finding.`;
+{"verdict":"issued"|"withheld","summary":"one or two plain sentences for the record","mandates":{"signature_legality":"cleared"|"flagged"|"failed","request_clarity":"cleared"|"flagged"|"failed","credential_validity":"cleared"|"flagged"|"failed"},"findings":[{"mandate":"signature_legality"|"request_clarity"|"credential_validity","code":"SCREAMING_SNAKE_CASE","severity":"info"|"warning"|"blocking","detail":"one sentence"}]}
+A mandate is "failed" when it holds a blocking finding, "flagged" when it holds only warnings, otherwise "cleared".
+Emit at least one finding per mandate, so the record shows all three were exercised.
+Set verdict to "issued" only when all three mandates are cleared or flagged and no blocking finding exists anywhere.`;
+
+const MANDATE_KEYS = OVERSEER_MANDATES.map((m) => m.key);
 
 export async function runOverseer(input: OverseerInput): Promise<OverseerResult> {
   const apiKey = process.env.LOVABLE_API_KEY;
@@ -196,7 +231,7 @@ export async function runOverseer(input: OverseerInput): Promise<OverseerResult>
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: OVERSEER_SYSTEM },
-        { role: "user", content: JSON.stringify(input) },
+        { role: "user", content: JSON.stringify({ ...input, today: new Date().toISOString() }) },
       ],
     }),
   });
@@ -231,11 +266,26 @@ export async function runOverseer(input: OverseerInput): Promise<OverseerResult>
         .filter((f): f is OverseerFinding => Boolean(f && typeof f.detail === "string"))
         .map((f) => ({
           code: String(f.code ?? "REVIEW_NOTE").toUpperCase().replace(/\s+/g, "_"),
+          mandate: MANDATE_KEYS.includes(f.mandate) ? f.mandate : "signature_legality",
           severity:
             f.severity === "blocking" || f.severity === "warning" ? f.severity : "info",
           detail: String(f.detail),
         }))
     : [];
+
+  // Mandate verdicts are recomputed server side; the model's own tally is advisory.
+  const mandates = MANDATE_KEYS.reduce(
+    (acc, key) => {
+      const own = findings.filter((f) => f.mandate === key);
+      acc[key] = own.some((f) => f.severity === "blocking")
+        ? "failed"
+        : own.some((f) => f.severity === "warning")
+          ? "flagged"
+          : "cleared";
+      return acc;
+    },
+    {} as Record<OverseerMandate, MandateVerdict>,
+  );
 
   const hasBlocking = findings.some((f) => f.severity === "blocking");
   const verdict: OverseerVerdict =
@@ -247,13 +297,22 @@ export async function runOverseer(input: OverseerInput): Promise<OverseerResult>
       typeof parsed.summary === "string" && parsed.summary.trim()
         ? parsed.summary.trim()
         : verdict === "issued"
-          ? "All attestations reconciled against the ledger."
-          : "Review withheld pending unresolved findings.",
+          ? "All three mandates discharged: signatures lawful, request unambiguous, credentials valid."
+          : "Issuance withheld pending unresolved findings under the overseer's mandates.",
+    mandates,
     findings: findings.length
       ? findings
-      : [{ code: "REVIEW_COMPLETE", severity: "info", detail: "Automated review completed." }],
+      : [
+          {
+            code: "REVIEW_COMPLETE",
+            mandate: "signature_legality",
+            severity: "info",
+            detail: "Automated review completed.",
+          },
+        ],
   };
 }
+
 
 export function buildProofNumber(notaryIdNumber: string, verificationCode: string): string {
   const year = new Date().getFullYear();
