@@ -158,7 +158,7 @@ function Landing() {
                 </p>
                 <ul className="mt-6 space-y-2 font-mono text-xs text-muted-foreground">
                   <li>· Proof number bound to the notary ID</li>
-                  <li>· Overseer verdict, summary and findings of record</li>
+                  <li>· Verdict and findings under each of the three mandates</li>
                   <li>· Merkle root over all attestations</li>
                 </ul>
               </article>
