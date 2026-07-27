@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedProofIdRouteImport } from './routes/_authenticated/proof.$id'
 import { Route as AuthenticatedMattersIdRouteImport } from './routes/_authenticated/matters.$id'
 import { Route as AuthenticatedCertificateIdRouteImport } from './routes/_authenticated/certificate.$id'
 
@@ -41,6 +42,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProofIdRoute = AuthenticatedProofIdRouteImport.update({
+  id: '/proof/$id',
+  path: '/proof/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMattersIdRoute = AuthenticatedMattersIdRouteImport.update({
   id: '/matters/$id',
   path: '/matters/$id',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/matters/$id': typeof AuthenticatedMattersIdRoute
+  '/proof/$id': typeof AuthenticatedProofIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/matters/$id': typeof AuthenticatedMattersIdRoute
+  '/proof/$id': typeof AuthenticatedProofIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/_authenticated/matters/$id': typeof AuthenticatedMattersIdRoute
+  '/_authenticated/proof/$id': typeof AuthenticatedProofIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/certificate/$id'
     | '/matters/$id'
+    | '/proof/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/certificate/$id'
     | '/matters/$id'
+    | '/proof/$id'
   id:
     | '__root__'
     | '/'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/certificate/$id'
     | '/_authenticated/matters/$id'
+    | '/_authenticated/proof/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/proof/$id': {
+      id: '/_authenticated/proof/$id'
+      path: '/proof/$id'
+      fullPath: '/proof/$id'
+      preLoaderRoute: typeof AuthenticatedProofIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/matters/$id': {
       id: '/_authenticated/matters/$id'
       path: '/matters/$id'
@@ -172,12 +191,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedCertificateIdRoute: typeof AuthenticatedCertificateIdRoute
   AuthenticatedMattersIdRoute: typeof AuthenticatedMattersIdRoute
+  AuthenticatedProofIdRoute: typeof AuthenticatedProofIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedCertificateIdRoute: AuthenticatedCertificateIdRoute,
   AuthenticatedMattersIdRoute: AuthenticatedMattersIdRoute,
+  AuthenticatedProofIdRoute: AuthenticatedProofIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
