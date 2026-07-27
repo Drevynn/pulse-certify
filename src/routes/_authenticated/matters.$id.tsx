@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { getNotarization, recordAttestation, runOverseerReview } from "@/lib/notary.functions";
 import { PulseSeal } from "@/components/PulseSeal";
+import { OVERSEER_MANDATES } from "@/lib/overseer-mandates";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -208,10 +209,22 @@ function MatterPage() {
             ) : (
               <>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  The overseer reconciles commissions, certification, attestation quorum and
-                  chain linkage. It convenes only once every panel notary has responded, and
-                  only the filing notary may call it.
+                  The overseer holds three standing mandates. It convenes only once every panel
+                  notary has responded, and only the filing notary may call it.
                 </p>
+                <ol className="mt-4 space-y-3">
+                  {OVERSEER_MANDATES.map((m) => (
+                    <li key={m.key} className="border-l-2 border-primary/40 pl-4">
+                      <p className="text-sm">
+                        <span className="font-mono text-xs text-primary">{m.ordinal}</span>{" "}
+                        {m.label}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {m.charge}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
                 <Button
                   className="mt-5"
                   onClick={() => overseerMutation.mutate()}
@@ -222,13 +235,30 @@ function MatterPage() {
                 {overseerMutation.data && overseerMutation.data.verdict !== "issued" ? (
                   <div className="mt-5 rounded-md border border-destructive/40 bg-destructive/5 p-4">
                     <p className="text-sm">{overseerMutation.data.summary}</p>
-                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                      {overseerMutation.data.findings.map((f, i) => (
-                        <li key={i}>
-                          · [{f.severity}] {f.detail}
-                        </li>
-                      ))}
-                    </ul>
+                    {OVERSEER_MANDATES.map((m) => {
+                      const own = overseerMutation.data!.findings.filter(
+                        (f) => f.mandate === m.key,
+                      );
+                      const state = overseerMutation.data!.mandates?.[m.key] ?? "cleared";
+                      return (
+                        <div key={m.key} className="mt-3">
+                          <p className="text-xs uppercase tracking-[0.14em]">
+                            {m.ordinal} · {m.label} — {state}
+                          </p>
+                          <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
+                            {own.length ? (
+                              own.map((f, i) => (
+                                <li key={i}>
+                                  · [{f.severity}] {f.detail}
+                                </li>
+                              ))
+                            ) : (
+                              <li>· no exception recorded</li>
+                            )}
+                          </ul>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : null}
               </>
