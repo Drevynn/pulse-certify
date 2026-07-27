@@ -9,46 +9,16 @@
  */
 
 import { sha256Hex } from "./hash";
+import { OVERSEER_MANDATES } from "./overseer-mandates";
+import type { MandateVerdict, OverseerMandate } from "./overseer-mandates";
+
+export { OVERSEER_MANDATES };
+export type { MandateVerdict, OverseerMandate };
 
 export const GENESIS_HASH = "0".repeat(64);
 export const REGISTRY_NAME = "PulseChain Notary Registry";
 
 export type OverseerVerdict = "issued" | "withheld";
-
-/** The three standing mandates of the AI overseer. */
-export type OverseerMandate =
-  | "signature_legality"
-  | "request_clarity"
-  | "credential_validity";
-
-export const OVERSEER_MANDATES: Array<{
-  key: OverseerMandate;
-  ordinal: string;
-  label: string;
-  charge: string;
-}> = [
-  {
-    key: "signature_legality",
-    ordinal: "I",
-    label: "Legality of signature",
-    charge:
-      "Oversee that every notarial signature on the matter was lawfully executed, properly sequenced and bound to the document digest.",
-  },
-  {
-    key: "request_clarity",
-    ordinal: "II",
-    label: "Clarity of the clearance request",
-    charge:
-      "Oversee that the client's clearance request is complete and unambiguous, with no confusion as to which notary acts or in what capacity.",
-  },
-  {
-    key: "credential_validity",
-    ordinal: "III",
-    label: "Validity of credentials",
-    charge:
-      "Double-check the credentials of every notary so the finished contract and its signatures are valid at the moment of issuance.",
-  },
-];
 
 export interface OverseerFinding {
   code: string;
@@ -56,8 +26,6 @@ export interface OverseerFinding {
   severity: "info" | "warning" | "blocking";
   detail: string;
 }
-
-export type MandateVerdict = "cleared" | "flagged" | "failed";
 
 export interface OverseerResult {
   verdict: OverseerVerdict;

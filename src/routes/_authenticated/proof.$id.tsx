@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getNotarization } from "@/lib/notary.functions";
+import { OVERSEER_MANDATES } from "@/lib/overseer-mandates";
 import { PulseSeal } from "@/components/PulseSeal";
 import { Button } from "@/components/ui/button";
 
