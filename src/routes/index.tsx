@@ -42,7 +42,7 @@ const STEPS = [
   {
     n: "03",
     title: "Oversee",
-    body: "Once the last attestation lands, the AI overseer reconciles commissions, certification status and chain linkage before anything can be issued.",
+    body: "Once the last attestation lands, the AI overseer discharges three mandates: legality of every signature, clarity of the client's clearance request, and a double-check of each notary's credentials.",
   },
   {
     n: "04",
