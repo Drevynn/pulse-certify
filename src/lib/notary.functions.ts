@@ -417,7 +417,7 @@ export const runOverseerReview = createServerFn({ method: "POST" })
       issuing_notary_id_number: issuingId,
       overseer_verdict: review.verdict,
       overseer_summary: review.summary,
-      overseer_findings: review.findings,
+      overseer_findings: review.findings as unknown as import("@/integrations/supabase/types").Json,
       merkle_root: root,
       tx_hash: sealBlock.tx_hash,
     });
