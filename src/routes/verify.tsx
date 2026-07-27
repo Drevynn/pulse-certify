@@ -114,7 +114,7 @@ function VerifyPage() {
                 hash={result.documentHash}
                 code={result.verificationCode}
                 size={240}
-                tone={result.proof ? "foil" : "verdigris"}
+                tone="foil"
               />
             </div>
             <div className="vault-panel p-8">
