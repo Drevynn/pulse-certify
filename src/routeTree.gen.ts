@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMattersIdRouteImport } from './routes/_authenticated/matters.$id'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -39,18 +40,25 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMattersIdRoute = AuthenticatedMattersIdRouteImport.update({
+  id: '/matters/$id',
+  path: '/matters/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/verify': typeof VerifyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/matters/$id': typeof AuthenticatedMattersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/verify': typeof VerifyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/matters/$id': typeof AuthenticatedMattersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/verify': typeof VerifyRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/matters/$id': typeof AuthenticatedMattersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/verify' | '/dashboard'
+  fullPaths: '/' | '/auth' | '/verify' | '/dashboard' | '/matters/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/verify' | '/dashboard'
+  to: '/' | '/auth' | '/verify' | '/dashboard' | '/matters/$id'
   id:
     | '__root__'
     | '/'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/verify'
     | '/_authenticated/dashboard'
+    | '/_authenticated/matters/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,15 +128,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/matters/$id': {
+      id: '/_authenticated/matters/$id'
+      path: '/matters/$id'
+      fullPath: '/matters/$id'
+      preLoaderRoute: typeof AuthenticatedMattersIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMattersIdRoute: typeof AuthenticatedMattersIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMattersIdRoute: AuthenticatedMattersIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
