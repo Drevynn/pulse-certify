@@ -270,12 +270,13 @@ export function PulseSeal({
           return (
             <line
               key={`t${i}`}
-              x1={200 + r1 * Math.cos(a)}
-              y1={200 + r1 * Math.sin(a)}
-              x2={200 + 178 * Math.cos(a)}
-              y2={200 + 178 * Math.sin(a)}
+              x1={(200 + r1 * Math.cos(a)).toFixed(2)}
+              y1={(200 + r1 * Math.sin(a)).toFixed(2)}
+              x2={(200 + 178 * Math.cos(a)).toFixed(2)}
+              y2={(200 + 178 * Math.sin(a)).toFixed(2)}
               opacity={long ? 0.9 : 0.4}
             />
+
           );
         })}
       </g>
