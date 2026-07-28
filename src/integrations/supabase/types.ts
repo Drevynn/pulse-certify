@@ -283,6 +283,10 @@ export type Database = {
         Args: { _notarization_id: string; _user_id: string }
         Returns: boolean
       }
+      shares_panel: {
+        Args: { _subject: string; _viewer: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "notary" | "registrar" | "admin"
