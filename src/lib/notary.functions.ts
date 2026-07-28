@@ -33,31 +33,28 @@ export const getMyProfile = createServerFn({ method: "GET" })
     return data;
   });
 
+// Credential fields (is_certified, commission_state, commission_expires_on)
+// are trust-bearing: the AI overseer relies on them to authorise issuance.
+// They are registrar/admin-controlled and cannot be self-served here; a
+// database trigger enforces the same rule at the data layer.
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
         fullName: z.string().trim().min(2).max(120),
-        commissionState: z.string().trim().max(80).optional().nullable(),
-        commissionExpiresOn: z.string().trim().max(20).optional().nullable(),
-        isCertified: z.boolean(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("profiles")
-      .update({
-        full_name: data.fullName,
-        commission_state: data.commissionState || null,
-        commission_expires_on: data.commissionExpiresOn || null,
-        is_certified: data.isCertified,
-      })
+      .update({ full_name: data.fullName })
       .eq("id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const listNotarizations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
