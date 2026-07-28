@@ -7,13 +7,11 @@ import {
   createNotarization,
   getMyProfile,
   listNotarizations,
-  updateMyProfile,
 } from "@/lib/notary.functions";
 import { hashFile } from "@/lib/hash";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -48,7 +46,6 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchList = useServerFn(listNotarizations);
-  const saveProfile = useServerFn(updateMyProfile);
   const createMatter = useServerFn(createNotarization);
 
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
@@ -66,20 +63,6 @@ function Dashboard() {
   const [file, setFile] = useState<File | null>(null);
   const [digest, setDigest] = useState<string | null>(null);
   const [hashing, setHashing] = useState(false);
-
-  const profileMutation = useMutation({
-    mutationFn: (input: { isCertified: boolean }) =>
-      saveProfile({
-        data: {
-          fullName: profile?.full_name ?? "Notary",
-          commissionState: profile?.commission_state ?? null,
-          commissionExpiresOn: profile?.commission_expires_on ?? null,
-          isCertified: input.isCertified,
-        },
-      }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profile"] }),
-    onError: (e: Error) => toast.error(e.message),
-  });
 
   const create = useMutation({
     mutationFn: async () => {
