@@ -79,21 +79,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Pulse Notary — Blockchain Notarization Registry" },
+      { title: "Pulse Notary — Blockchain Notarization for Certified Notaries" },
       {
         name: "description",
         content:
-          "Zero-trust blockchain notarization for certified notaries: anchored documents, multi-notary attestation and AI-overseen Proof of Service.",
+          "Anchor documents to an append-only chain, collect attestations from certified notaries, and issue an AI-overseen Proof of Service bearing the notary's ID number.",
       },
       { name: "author", content: "Pulse Notary" },
-      { property: "og:title", content: "Pulse Notary — Blockchain Notarization Registry" },
+      { property: "og:title", content: "Pulse Notary — Blockchain Notarization for Certified Notaries" },
       {
         property: "og:description",
         content:
-          "Zero-trust blockchain notarization for certified notaries: anchored documents, multi-notary attestation and AI-overseen Proof of Service.",
+          "Anchor documents to an append-only chain, collect attestations from certified notaries, and issue an AI-overseen Proof of Service bearing the notary's ID number.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Pulse Notary — Blockchain Notarization for Certified Notaries" },
+      { name: "twitter:description", content: "Anchor documents to an append-only chain, collect attestations from certified notaries, and issue an AI-overseen Proof of Service bearing the notary's ID number." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a4e1043c-b71c-4825-ab0b-fa86fb120e7e/id-preview-dd7b8761--4661923b-735b-41dd-843e-e4e2eeef331a.lovable.app-1785202076091.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a4e1043c-b71c-4825-ab0b-fa86fb120e7e/id-preview-dd7b8761--4661923b-735b-41dd-843e-e4e2eeef331a.lovable.app-1785202076091.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -106,7 +110,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
 

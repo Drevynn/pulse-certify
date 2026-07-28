@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Zero-trust notarization: hash-anchored matters, multi-notary attestation, guilloche-sealed certificates and AI-overseen Proof of Service.",
+          "Anchor documents to an append-only chain, collect attestations from certified notaries, and issue an AI-overseen Proof of Service bearing the notary's ID number.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
