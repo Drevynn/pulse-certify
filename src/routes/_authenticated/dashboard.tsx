@@ -7,13 +7,11 @@ import {
   createNotarization,
   getMyProfile,
   listNotarizations,
-  updateMyProfile,
 } from "@/lib/notary.functions";
 import { hashFile } from "@/lib/hash";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -48,7 +46,6 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const fetchProfile = useServerFn(getMyProfile);
   const fetchList = useServerFn(listNotarizations);
-  const saveProfile = useServerFn(updateMyProfile);
   const createMatter = useServerFn(createNotarization);
 
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
@@ -66,20 +63,6 @@ function Dashboard() {
   const [file, setFile] = useState<File | null>(null);
   const [digest, setDigest] = useState<string | null>(null);
   const [hashing, setHashing] = useState(false);
-
-  const profileMutation = useMutation({
-    mutationFn: (input: { isCertified: boolean }) =>
-      saveProfile({
-        data: {
-          fullName: profile?.full_name ?? "Notary",
-          commissionState: profile?.commission_state ?? null,
-          commissionExpiresOn: profile?.commission_expires_on ?? null,
-          isCertified: input.isCertified,
-        },
-      }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profile"] }),
-    onError: (e: Error) => toast.error(e.message),
-  });
 
   const create = useMutation({
     mutationFn: async () => {
@@ -145,17 +128,18 @@ function Dashboard() {
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
           <div>
-            <p className="text-sm">Certified commission</p>
+            <p className="text-sm">
+              Certified commission ·{" "}
+              <span className={profile?.is_certified ? "text-primary" : "text-muted-foreground"}>
+                {profile?.is_certified ? "On record" : "Not on record"}
+              </span>
+            </p>
             <p className="text-xs text-muted-foreground">
-              Required before the overseer will issue
+              Set by the registrar only — required before the overseer will issue
             </p>
           </div>
-          <Switch
-            checked={Boolean(profile?.is_certified)}
-            onCheckedChange={(v) => profileMutation.mutate({ isCertified: v })}
-            aria-label="Certified commission"
-          />
         </div>
+
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[380px_1fr] lg:items-start">
