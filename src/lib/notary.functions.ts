@@ -157,12 +157,16 @@ export const createNotarization = createServerFn({ method: "POST" })
       (c) => c !== me.notary_id_number,
     );
 
+    // Profiles are only readable by self + panel counterparties, so the
+    // panel-assignment lookup runs server side and returns nothing but the
+    // identifier mapping for the exact codes the filer typed.
     const { data: coSigners } = requested.length
-      ? await context.supabase
+      ? await supabaseAdmin
           .from("profiles")
           .select("id, notary_id_number")
           .in("notary_id_number", requested)
       : { data: [] };
+
 
     const found = new Set((coSigners ?? []).map((c) => c.notary_id_number));
     const unknown = requested.filter((r) => !found.has(r));
