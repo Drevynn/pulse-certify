@@ -17,13 +17,13 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Notary Registry — Pulse Notary" },
+      { title: "Notary Registry — Pulse IP" },
       {
         name: "description",
         content:
           "File new matters, hash-anchor documents and track attestation progress across your notarial panel.",
       },
-      { property: "og:title", content: "Notary Registry — Pulse Notary" },
+      { property: "og:title", content: "Notary Registry — Pulse IP" },
       {
         property: "og:description",
         content: "Your matters, panels and issued Proofs of Service.",

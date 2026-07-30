@@ -183,7 +183,7 @@ export interface OverseerInput {
 
 const OVERSEER_MODEL = "google/gemini-3.5-flash";
 
-const OVERSEER_SYSTEM = `You are the Pulse Notary AI Overseer, the final independent control in a zero-trust notarization pipeline.
+const OVERSEER_SYSTEM = `You are the Pulse IP AI Overseer, the final independent control in a zero-trust notarization pipeline.
 After every certified notary on the panel has responded, you authorise or withhold the Proof of Service.
 
 You hold exactly three standing mandates. Every finding you emit MUST be filed under one of them.

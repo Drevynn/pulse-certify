@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Pulse Notary — Blockchain Notarization for Certified Notaries" },
+      { title: "Pulse IP — Blockchain Notarization for Certified Notaries" },
       {
         name: "description",
         content:
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "Pulse Notary — Blockchain Notarization for Certified Notaries",
+        content: "Pulse IP — Blockchain Notarization for Certified Notaries",
       },
       {
         property: "og:description",
@@ -59,7 +59,7 @@ function Landing() {
           <Link to="/" className="flex items-center gap-2.5">
             <PulseGlyph />
             <span className="font-display text-lg leading-none">
-              Pulse<span className="text-primary">Notary</span>
+              Pulse<span className="text-primary">IP</span>
             </span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
@@ -85,7 +85,7 @@ function Landing() {
                 <span className="foil-text">cannot be quietly rewritten.</span>
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-                Pulse Notary is a registry for commissioned notaries. Documents are anchored
+                Pulse IP is a registry for commissioned notaries. Documents are anchored
                 by digest, attestations are collected from a certified panel, and a Proof of
                 Service is issued only after an independent AI overseer reconciles the whole
                 chain.
@@ -116,7 +116,7 @@ function Landing() {
               <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-3xl" />
               <PulseSeal
                 hash="c41f7b8e05a9d3266f1b4e70a8c95d3218be7f04a3269cd58bf1740e93a6cb27"
-                legend="PULSE NOTARY REGISTRY"
+                legend="PULSE IP REGISTRY"
                 code="SPECIMEN"
                 size={420}
                 animated
@@ -199,7 +199,7 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-10 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <span>© {new Date().getFullYear()} Pulse Notary Registry</span>
+          <span>© {new Date().getFullYear()} Pulse IP Registry</span>
           <span className="sm:ml-auto font-mono">
             Registry contracts are deterministic per matter.
           </span>

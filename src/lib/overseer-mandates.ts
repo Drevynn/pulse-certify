@@ -1,5 +1,5 @@
 /**
- * The three standing mandates of the Pulse Notary AI Overseer.
+ * The three standing mandates of the Pulse IP AI Overseer.
  * Browser-safe: shared by the server engine and the UI.
  */
 

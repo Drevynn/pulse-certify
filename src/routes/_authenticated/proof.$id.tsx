@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/proof/$id")({
   head: () => ({
     meta: [
-      { title: "Proof of Service — Pulse Notary" },
+      { title: "Proof of Service — Pulse IP" },
       {
         name: "description",
         content:
           "Printable Proof of Service labelled with the issuing notary's ID number, minted after the AI overseer reconciles the full custody chain.",
       },
-      { property: "og:title", content: "Proof of Service — Pulse Notary" },
+      { property: "og:title", content: "Proof of Service — Pulse IP" },
       {
         property: "og:description",
         content: "AI-overseen proof of notarial service with Merkle root and seal transaction.",
@@ -97,7 +97,7 @@ function ProofPage() {
       <article className="doc-sheet">
         <header className="doc-head">
           <div>
-            <p className="doc-eyebrow">Pulse Notary Registry · AI Overseer</p>
+            <p className="doc-eyebrow">Pulse IP Registry · AI Overseer</p>
             <h1 className="doc-title">Proof of Service</h1>
             <p className="doc-sub">
               Minted upon reconciliation of the complete custody chain. This proof is labelled

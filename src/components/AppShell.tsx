@@ -34,7 +34,7 @@ export function AppShell({
           <Link to="/" className="flex items-center gap-2.5">
             <PulseGlyph />
             <span className="font-display text-lg leading-none tracking-tight">
-              Pulse<span className="text-primary">Notary</span>
+              Pulse<span className="text-primary">IP</span>
             </span>
           </Link>
 

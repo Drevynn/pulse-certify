@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/certificate/$id")({
   head: () => ({
     meta: [
-      { title: "Certificate of Notarization — Pulse Notary" },
+      { title: "Certificate of Notarization — Pulse IP" },
       {
         name: "description",
         content:
           "Printable Certificate of Notarization bearing the hash-derived Pulse IP guilloche mark and the full panel of attesting notaries.",
       },
-      { property: "og:title", content: "Certificate of Notarization — Pulse Notary" },
+      { property: "og:title", content: "Certificate of Notarization — Pulse IP" },
       {
         property: "og:description",
         content: "The sealed, printable notarial deliverable.",
@@ -70,7 +70,7 @@ function CertificatePage() {
       <article className="doc-sheet">
         <header className="doc-head">
           <div>
-            <p className="doc-eyebrow">Pulse Notary Registry</p>
+            <p className="doc-eyebrow">Pulse IP Registry</p>
             <h1 className="doc-title">Certificate of Notarization</h1>
             <p className="doc-sub">
               Issued under a zero-trust append-only custody chain. This instrument certifies
@@ -169,7 +169,7 @@ function CertificatePage() {
           <PulseSeal
             hash={matter.document_hash}
             code={matter.verification_code}
-            legend="PULSE NOTARY REGISTRY"
+            legend="PULSE IP REGISTRY"
             size={210}
             tone="ink"
           />
