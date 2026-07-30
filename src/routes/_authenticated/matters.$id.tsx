@@ -13,13 +13,13 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/_authenticated/matters/$id")({
   head: () => ({
     meta: [
-      { title: "Matter Ledger — Pulse Notary" },
+      { title: "Matter Ledger — Pulse IP" },
       {
         name: "description",
         content:
           "Inspect the append-only custody chain for a notarial matter, record your attestation and convene the AI overseer.",
       },
-      { property: "og:title", content: "Matter Ledger — Pulse Notary" },
+      { property: "og:title", content: "Matter Ledger — Pulse IP" },
       {
         property: "og:description",
         content: "Custody chain, panel attestations and Proof of Service issuance.",

@@ -11,16 +11,16 @@ import { PulseGlyph } from "@/components/AppShell";
 export const Route = createFileRoute("/verify")({
   head: () => ({
     meta: [
-      { title: "Verify a Notarial Seal — Pulse Notary Registry" },
+      { title: "Verify a Notarial Seal — Pulse IP Registry" },
       {
         name: "description",
         content:
-          "Enter a verification code to confirm a document anchor, attestation count and Proof of Service against the Pulse Notary registry. No account required.",
+          "Enter a verification code to confirm a document anchor, attestation count and Proof of Service against the Pulse IP registry. No account required.",
       },
-      { property: "og:title", content: "Verify a Notarial Seal — Pulse Notary Registry" },
+      { property: "og:title", content: "Verify a Notarial Seal — Pulse IP Registry" },
       {
         property: "og:description",
-        content: "Public, account-free confirmation of a Pulse Notary seal.",
+        content: "Public, account-free confirmation of a Pulse IP seal.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -54,7 +54,7 @@ function VerifyPage() {
           <Link to="/" className="flex items-center gap-2.5">
             <PulseGlyph />
             <span className="font-display text-lg leading-none">
-              Pulse<span className="text-primary">Notary</span>
+              Pulse<span className="text-primary">IP</span>
             </span>
           </Link>
           <Button asChild variant="ghost" size="sm" className="ml-auto">

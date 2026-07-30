@@ -14,16 +14,16 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ redirect: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Notary Sign In — Pulse Notary Registry" },
+      { title: "Notary Sign In — Pulse IP Registry" },
       {
         name: "description",
         content:
           "Sign in or enrol as a certified notary to anchor documents, attest matters and issue AI-overseen Proof of Service.",
       },
-      { property: "og:title", content: "Notary Sign In — Pulse Notary Registry" },
+      { property: "og:title", content: "Notary Sign In — Pulse IP Registry" },
       {
         property: "og:description",
-        content: "Credentialed access to the Pulse Notary zero-trust registry.",
+        content: "Credentialed access to the Pulse IP zero-trust registry.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -107,13 +107,13 @@ function AuthPage() {
         <Link to="/" className="flex items-center gap-2.5">
           <PulseGlyph />
           <span className="font-display text-lg">
-            Pulse<span className="text-primary">Notary</span>
+            Pulse<span className="text-primary">IP</span>
           </span>
         </Link>
         <div className="relative flex flex-col items-center">
           <PulseSeal
             hash="7f3c9a1e4b8d20556ce1a97f04b3d8e2417c6a90fd5b3821e7c40a96b5d1f382"
-            legend="PULSE NOTARY REGISTRY"
+            legend="PULSE IP REGISTRY"
             code="SPECIMEN"
             size={330}
             animated

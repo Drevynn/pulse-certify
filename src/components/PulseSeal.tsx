@@ -76,7 +76,7 @@ function rosetteCurve(
 
 export function PulseSeal({
   hash,
-  legend = "PULSE NOTARY REGISTRY",
+  legend = "PULSE IP REGISTRY",
   code,
   size = 260,
   tone = "foil",
