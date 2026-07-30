@@ -219,7 +219,7 @@ function ProofPage() {
           <PulseSeal
             hash={proof.merkle_root}
             code={proof.issuing_notary_id_number}
-            legend="PROOF OF SERVICE · AI OVERSEER"
+            legend="PULSE IP REGISTRY · PROOF OF SERVICE"
             size={210}
             tone="ink"
           />
