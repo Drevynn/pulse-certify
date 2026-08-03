@@ -8,6 +8,8 @@ import {
   getMyProfile,
   listNotarizations,
 } from "@/lib/notary.functions";
+import { getMyClearance } from "@/lib/credentials.functions";
+import { CLEARANCE_MESSAGE } from "@/lib/clearance";
 import { hashFile } from "@/lib/hash";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +51,12 @@ function Dashboard() {
   const createMatter = useServerFn(createNotarization);
 
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
+  const fetchClearance = useServerFn(getMyClearance);
+  const { data: clearance } = useQuery({
+    queryKey: ["clearance"],
+    queryFn: () => fetchClearance(),
+  });
+  const cleared = clearance?.cleared ?? false;
   const { data: list, isLoading } = useQuery({
     queryKey: ["matters"],
     queryFn: () => fetchList(),
@@ -126,31 +134,49 @@ function Dashboard() {
             {profile?.commission_state ? ` · ${profile.commission_state}` : ""}
           </p>
         </div>
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
-          <div>
-            <p className="text-sm">
-              Certified commission ·{" "}
-              <span className={profile?.is_certified ? "text-primary" : "text-muted-foreground"}>
-                {profile?.is_certified ? "On record" : "Not on record"}
-              </span>
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Set by the registrar only — required before the overseer will issue
-            </p>
-          </div>
+        <div className="rounded-lg border border-border bg-card px-4 py-3">
+          <p className="text-sm">
+            Registry access ·{" "}
+            <span className={cleared ? "text-verdigris" : "text-muted-foreground"}>
+              {cleared ? "Cleared" : "Withheld"}
+            </span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Certified commission ·{" "}
+            {profile?.is_certified ? "On record" : "Not on record"} · Verified credential
+            copies: {clearance?.verifiedCredentials ?? 0}
+          </p>
         </div>
-
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[380px_1fr] lg:items-start">
         {/* File a matter */}
         <section className="vault-panel p-7">
           <h2 className="text-2xl">File a matter</h2>
+          {!cleared ? (
+            <div className="mt-4 rounded-md border border-border bg-muted/30 p-4">
+              <p className="text-sm">Filing is withheld until your credentials are verified.</p>
+              <ul className="mt-2 space-y-1">
+                {(clearance?.reasons ?? []).map((r) => (
+                  <li key={r} className="text-[11px] text-muted-foreground">
+                    — {CLEARANCE_MESSAGE[r]}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/credentials"
+                className="mt-3 inline-block text-xs text-primary underline underline-offset-4"
+              >
+                Open the credential vault
+              </Link>
+            </div>
+          ) : null}
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
             The document is hashed in your browser. Only the digest is anchored — the file
             itself never leaves this machine.
           </p>
 
+          <fieldset disabled={!cleared} className={cleared ? "" : "opacity-50"}>
           <form
             className="mt-6 space-y-4"
             onSubmit={(e) => {
@@ -237,6 +263,7 @@ function Dashboard() {
               {create.isPending ? "Anchoring…" : "Anchor to registry"}
             </Button>
           </form>
+          </fieldset>
         </section>
 
         {/* Matters */}

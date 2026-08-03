@@ -145,6 +145,13 @@ export const createNotarization = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const engine = await import("./notary.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { evaluateClearance } = await import("./clearance.server");
+    const { clearanceError } = await import("./clearance");
+
+    // Admission gate: no matter may be filed until every credential of the
+    // filing notary has been verified and retained by a registrar.
+    const clearance = await evaluateClearance(context.supabase, context.userId);
+    if (!clearance.cleared) throw new Error(clearanceError(clearance));
 
     const { data: me, error: meError } = await context.supabase
       .from("profiles")
@@ -242,6 +249,12 @@ export const recordAttestation = createServerFn({ method: "POST" })
     const engine = await import("./notary.server");
     const { sha256Hex } = await import("./hash");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { evaluateClearance } = await import("./clearance.server");
+    const { clearanceError } = await import("./clearance");
+
+    // A signature is only lawful if the signing notary is currently cleared.
+    const clearance = await evaluateClearance(context.supabase, context.userId);
+    if (!clearance.cleared) throw new Error(clearanceError(clearance));
 
     const { data: signer, error } = await context.supabase
       .from("notarization_signers")

@@ -6,16 +6,20 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", label: "Registry" },
+  { to: "/credentials", label: "Credentials" },
   { to: "/verify", label: "Public lookup" },
 ];
 
 export function AppShell({
   children,
   notaryIdNumber,
+  isRegistrar,
 }: {
   children: React.ReactNode;
   notaryIdNumber?: string | null;
+  isRegistrar?: boolean;
 }) {
+  const nav = isRegistrar ? [...NAV, { to: "/registrar", label: "Registrar" }] : NAV;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -39,7 +43,7 @@ export function AppShell({
           </Link>
 
           <nav className="ml-2 hidden items-center gap-1 sm:flex">
-            {NAV.map((item) => (
+            {nav.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
