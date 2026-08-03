@@ -263,6 +263,7 @@ function Dashboard() {
               {create.isPending ? "Anchoring…" : "Anchor to registry"}
             </Button>
           </form>
+          </fieldset>
         </section>
 
         {/* Matters */}
