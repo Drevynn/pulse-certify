@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { getMyProfile } from "@/lib/notary.functions";
+import { getMyRoles } from "@/lib/registrar.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -23,8 +24,12 @@ function AuthenticatedLayout() {
     queryFn: () => fetchProfile(),
   });
 
+  const fetchRoles = useServerFn(getMyRoles);
+  const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: () => fetchRoles() });
+  const isRegistrar = (roleData?.roles ?? []).some((r) => r === "registrar" || r === "admin");
+
   return (
-    <AppShell notaryIdNumber={profile?.notary_id_number}>
+    <AppShell notaryIdNumber={profile?.notary_id_number} isRegistrar={isRegistrar}>
       <Outlet />
     </AppShell>
   );

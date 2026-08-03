@@ -14,6 +14,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRegistrarRouteImport } from './routes/_authenticated/registrar'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
 import { Route as AuthenticatedProofIdRouteImport } from './routes/_authenticated/proof.$id'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRegistrarRoute = AuthenticatedRegistrarRouteImport.update({
+  id: '/registrar',
+  path: '/registrar',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/verify': typeof VerifyRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/registrar': typeof AuthenticatedRegistrarRoute
   '/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/matters/$id': typeof AuthenticatedMattersIdRoute
   '/proof/$id': typeof AuthenticatedProofIdRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/verify': typeof VerifyRoute
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/registrar': typeof AuthenticatedRegistrarRoute
   '/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/matters/$id': typeof AuthenticatedMattersIdRoute
   '/proof/$id': typeof AuthenticatedProofIdRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/verify': typeof VerifyRoute
   '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/registrar': typeof AuthenticatedRegistrarRoute
   '/_authenticated/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/_authenticated/matters/$id': typeof AuthenticatedMattersIdRoute
   '/_authenticated/proof/$id': typeof AuthenticatedProofIdRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/credentials'
     | '/dashboard'
+    | '/registrar'
     | '/certificate/$id'
     | '/matters/$id'
     | '/proof/$id'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/credentials'
     | '/dashboard'
+    | '/registrar'
     | '/certificate/$id'
     | '/matters/$id'
     | '/proof/$id'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/_authenticated/credentials'
     | '/_authenticated/dashboard'
+    | '/_authenticated/registrar'
     | '/_authenticated/certificate/$id'
     | '/_authenticated/matters/$id'
     | '/_authenticated/proof/$id'
@@ -189,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/registrar': {
+      id: '/_authenticated/registrar'
+      path: '/registrar'
+      fullPath: '/registrar'
+      preLoaderRoute: typeof AuthenticatedRegistrarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -230,6 +249,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedRegistrarRoute: typeof AuthenticatedRegistrarRoute
   AuthenticatedCertificateIdRoute: typeof AuthenticatedCertificateIdRoute
   AuthenticatedMattersIdRoute: typeof AuthenticatedMattersIdRoute
   AuthenticatedProofIdRoute: typeof AuthenticatedProofIdRoute
@@ -238,6 +258,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedRegistrarRoute: AuthenticatedRegistrarRoute,
   AuthenticatedCertificateIdRoute: AuthenticatedCertificateIdRoute,
   AuthenticatedMattersIdRoute: AuthenticatedMattersIdRoute,
   AuthenticatedProofIdRoute: AuthenticatedProofIdRoute,
