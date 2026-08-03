@@ -1,31 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-export type ClearanceReason =
-  | "profile_missing"
-  | "not_certified"
-  | "commission_expired"
-  | "no_verified_credential"
-  | "credentials_expired";
-
-export type Clearance = {
-  cleared: boolean;
-  reasons: ClearanceReason[];
-  isCertified: boolean;
-  commissionState: string | null;
-  commissionExpiresOn: string | null;
-  verifiedCredentials: number;
-  pendingCredentials: number;
-  rejectedCredentials: number;
-};
-
-export const CLEARANCE_MESSAGE: Record<ClearanceReason, string> = {
-  profile_missing: "No notary profile is on record for this account.",
-  not_certified: "Your commission has not been certified by a registrar yet.",
-  commission_expired: "Your commission of record has expired.",
-  no_verified_credential:
-    "No credential copy has been verified by a registrar. File a copy of your commission certificate.",
-  credentials_expired: "Every credential copy on file has passed its expiry date.",
-};
+import type { Clearance, ClearanceReason } from "./clearance";
 
 /**
  * Zero-trust clearance gate. A notary may only operate the registry once a
@@ -47,10 +21,10 @@ export async function evaluateClearance(
     supabase.from("notary_credentials").select("status, expires_on").eq("user_id", userId),
   ]);
 
-  const rows = credentials ?? [];
+  const rows: any[] = credentials ?? [];
   const today = new Date().toISOString().slice(0, 10);
-  const verified = rows.filter((r: any) => r.status === "verified");
-  const liveVerified = verified.filter((r: any) => !r.expires_on || r.expires_on >= today);
+  const verified = rows.filter((r) => r.status === "verified");
+  const liveVerified = verified.filter((r) => !r.expires_on || r.expires_on >= today);
 
   const reasons: ClearanceReason[] = [];
   if (!profile) reasons.push("profile_missing");
@@ -70,13 +44,7 @@ export async function evaluateClearance(
     commissionState: profile?.commission_state ?? null,
     commissionExpiresOn: profile?.commission_expires_on ?? null,
     verifiedCredentials: liveVerified.length,
-    pendingCredentials: rows.filter((r: any) => r.status === "pending").length,
-    rejectedCredentials: rows.filter((r: any) => r.status === "rejected").length,
+    pendingCredentials: rows.filter((r) => r.status === "pending").length,
+    rejectedCredentials: rows.filter((r) => r.status === "rejected").length,
   };
-}
-
-export function clearanceError(clearance: Clearance): string {
-  return `Registry access withheld — ${clearance.reasons
-    .map((r) => CLEARANCE_MESSAGE[r])
-    .join(" ")}`;
 }
