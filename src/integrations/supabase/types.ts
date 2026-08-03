@@ -165,6 +165,66 @@ export type Database = {
         }
         Relationships: []
       }
+      notary_credentials: {
+        Row: {
+          created_at: string
+          credential_number: string | null
+          document_name: string
+          expires_on: string | null
+          file_bytes: number | null
+          file_hash: string
+          id: string
+          issued_on: string | null
+          issuing_authority: string | null
+          kind: Database["public"]["Enums"]["credential_kind"]
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["credential_status"]
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credential_number?: string | null
+          document_name: string
+          expires_on?: string | null
+          file_bytes?: number | null
+          file_hash: string
+          id?: string
+          issued_on?: string | null
+          issuing_authority?: string | null
+          kind: Database["public"]["Enums"]["credential_kind"]
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["credential_status"]
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credential_number?: string | null
+          document_name?: string
+          expires_on?: string | null
+          file_bytes?: number | null
+          file_hash?: string
+          id?: string
+          issued_on?: string | null
+          issuing_authority?: string | null
+          kind?: Database["public"]["Enums"]["credential_kind"]
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["credential_status"]
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           commission_expires_on: string | null
@@ -275,6 +335,14 @@ export type Database = {
     }
     Enums: {
       app_role: "notary" | "registrar" | "admin"
+      credential_kind:
+        | "commission_certificate"
+        | "government_id"
+        | "surety_bond"
+        | "eo_insurance"
+        | "training_certificate"
+        | "other"
+      credential_status: "pending" | "verified" | "rejected"
       notarization_status: "draft" | "collecting" | "sealed" | "rejected"
       signer_status: "pending" | "attested" | "declined"
     }
@@ -405,6 +473,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["notary", "registrar", "admin"],
+      credential_kind: [
+        "commission_certificate",
+        "government_id",
+        "surety_bond",
+        "eo_insurance",
+        "training_certificate",
+        "other",
+      ],
+      credential_status: ["pending", "verified", "rejected"],
       notarization_status: ["draft", "collecting", "sealed", "rejected"],
       signer_status: ["pending", "attested", "declined"],
     },
