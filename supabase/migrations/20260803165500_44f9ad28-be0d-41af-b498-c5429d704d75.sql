@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.stamp_credential_review() FROM public, anon, authenticated;
