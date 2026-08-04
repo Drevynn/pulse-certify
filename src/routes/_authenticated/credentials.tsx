@@ -320,9 +320,13 @@ function CredentialVault() {
                         {c.file_hash}
                       </p>
                     </div>
-                    <Badge variant="outline" className={STATUS_TONE[c.status]}>
-                      {c.status}
-                    </Badge>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <ExpiryBadge expiresOn={c.expires_on} />
+                      <Badge variant="outline" className={STATUS_TONE[c.status]}>
+                        {c.status}
+                      </Badge>
+                    </div>
+
                   </div>
                   {c.review_note ? (
                     <p className="mt-3 border-l-2 border-border pl-3 text-xs text-muted-foreground">
