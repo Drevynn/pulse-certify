@@ -10,6 +10,8 @@ import {
   withdrawCredential,
 } from "@/lib/credentials.functions";
 import { CLEARANCE_MESSAGE, CREDENTIAL_KINDS, CREDENTIAL_KIND_LABEL } from "@/lib/clearance";
+import { ExpiryBadge, ExpiryNotices } from "@/components/ExpiryAlerts";
+
 import { hashFile } from "@/lib/hash";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
