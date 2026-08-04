@@ -14,12 +14,15 @@ export function AppShell({
   children,
   notaryIdNumber,
   isRegistrar,
+  expiring = [],
 }: {
   children: React.ReactNode;
   notaryIdNumber?: string | null;
   isRegistrar?: boolean;
+  expiring?: ExpiringItem[];
 }) {
   const nav = isRegistrar ? [...NAV, { to: "/registrar", label: "Registrar" }] : NAV;
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
