@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { ExpiryBadge } from "@/components/ExpiryAlerts";
+
 import {
   listCredentialQueue,
   reviewCredential,
@@ -148,7 +150,11 @@ function RegistrarReview() {
                           {c.file_hash}
                         </p>
                       </div>
-                      <Badge variant="outline">{c.status}</Badge>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <ExpiryBadge expiresOn={c.expires_on} />
+                        <Badge variant="outline">{c.status}</Badge>
+                      </div>
+
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <Button size="sm" variant="outline" onClick={() => view(c.id)}>

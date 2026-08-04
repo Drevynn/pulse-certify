@@ -10,6 +10,8 @@ import {
   withdrawCredential,
 } from "@/lib/credentials.functions";
 import { CLEARANCE_MESSAGE, CREDENTIAL_KINDS, CREDENTIAL_KIND_LABEL } from "@/lib/clearance";
+import { ExpiryBadge, ExpiryNotices } from "@/components/ExpiryAlerts";
+
 import { hashFile } from "@/lib/hash";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -191,6 +193,9 @@ function CredentialVault() {
         )}
       </section>
 
+      <ExpiryNotices expiring={clearance?.expiring ?? []} className="mt-4" />
+
+
       <div className="mt-10 grid gap-8 lg:grid-cols-[380px_1fr] lg:items-start">
         <section className="vault-panel p-7">
           <h2 className="text-2xl">File a credential copy</h2>
@@ -315,9 +320,13 @@ function CredentialVault() {
                         {c.file_hash}
                       </p>
                     </div>
-                    <Badge variant="outline" className={STATUS_TONE[c.status]}>
-                      {c.status}
-                    </Badge>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <ExpiryBadge expiresOn={c.expires_on} />
+                      <Badge variant="outline" className={STATUS_TONE[c.status]}>
+                        {c.status}
+                      </Badge>
+                    </div>
+
                   </div>
                   {c.review_note ? (
                     <p className="mt-3 border-l-2 border-border pl-3 text-xs text-muted-foreground">

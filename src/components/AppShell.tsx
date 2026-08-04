@@ -2,7 +2,10 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ExpiryCountBadge } from "@/components/ExpiryAlerts";
+import type { ExpiringItem } from "@/lib/clearance";
 import { cn } from "@/lib/utils";
+
 
 const NAV = [
   { to: "/dashboard", label: "Registry" },
@@ -14,12 +17,15 @@ export function AppShell({
   children,
   notaryIdNumber,
   isRegistrar,
+  expiring = [],
 }: {
   children: React.ReactNode;
   notaryIdNumber?: string | null;
   isRegistrar?: boolean;
+  expiring?: ExpiringItem[];
 }) {
   const nav = isRegistrar ? [...NAV, { to: "/registrar", label: "Registrar" }] : NAV;
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -53,6 +59,8 @@ export function AppShell({
                 )}
               >
                 {item.label}
+                {item.to === "/credentials" ? <ExpiryCountBadge expiring={expiring} /> : null}
+
               </Link>
             ))}
           </nav>
