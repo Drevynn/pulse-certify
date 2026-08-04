@@ -1,11 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Clearance, ClearanceReason, ExpiringItem } from "./clearance";
-import {
-  CREDENTIAL_KIND_LABEL,
-  EXPIRY_WARNING_DAYS,
-  daysUntil,
-  expiryTone,
-} from "./clearance";
+import { CREDENTIAL_KIND_LABEL, daysUntil, expiryTone } from "./clearance";
+
 
 
 /**
