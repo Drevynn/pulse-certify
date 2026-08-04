@@ -59,6 +59,8 @@ export function AppShell({
                 )}
               >
                 {item.label}
+                {item.to === "/credentials" ? <ExpiryCountBadge expiring={expiring} /> : null}
+
               </Link>
             ))}
           </nav>
