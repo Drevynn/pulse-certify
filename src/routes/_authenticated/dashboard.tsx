@@ -135,11 +135,12 @@ function Dashboard() {
           </p>
         </div>
         <div className="rounded-lg border border-border bg-card px-4 py-3">
-          <p className="text-sm">
+          <p className="flex items-center gap-2 text-sm">
             Registry access ·{" "}
             <span className={cleared ? "text-verdigris" : "text-muted-foreground"}>
               {cleared ? "Cleared" : "Withheld"}
             </span>
+            <ExpiryBadge expiresOn={profile?.commission_expires_on} />
           </p>
           <p className="text-xs text-muted-foreground">
             Certified commission ·{" "}
@@ -148,6 +149,9 @@ function Dashboard() {
           </p>
         </div>
       </div>
+
+      <ExpiryNotices expiring={clearance?.expiring ?? []} className="mt-6" />
+
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[380px_1fr] lg:items-start">
         {/* File a matter */}
