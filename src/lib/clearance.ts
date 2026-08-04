@@ -5,6 +5,23 @@ export type ClearanceReason =
   | "no_verified_credential"
   | "credentials_expired";
 
+/** Days before an expiry date at which the registry starts warning. */
+export const EXPIRY_WARNING_DAYS = 60;
+/** Days before expiry at which the warning escalates to critical. */
+export const EXPIRY_CRITICAL_DAYS = 14;
+
+export type ExpiryTone = "expired" | "critical" | "warning" | "ok";
+
+export type ExpiringItem = {
+  id: string;
+  /** "commission" or a credential kind */
+  kind: string;
+  label: string;
+  expiresOn: string;
+  daysLeft: number;
+  tone: Exclude<ExpiryTone, "ok">;
+};
+
 export type Clearance = {
   cleared: boolean;
   reasons: ClearanceReason[];
@@ -14,7 +31,36 @@ export type Clearance = {
   verifiedCredentials: number;
   pendingCredentials: number;
   rejectedCredentials: number;
+  /** Commission + verified credential copies at or near their expiry date. */
+  expiring: ExpiringItem[];
 };
+
+/** Whole days from today until `date` (negative once past). */
+export function daysUntil(date: string, today = new Date()): number {
+  const target = Date.parse(`${date}T00:00:00Z`);
+  const base = Date.parse(`${today.toISOString().slice(0, 10)}T00:00:00Z`);
+  return Math.round((target - base) / 86_400_000);
+}
+
+export function expiryTone(daysLeft: number): ExpiryTone {
+  if (daysLeft < 0) return "expired";
+  if (daysLeft <= EXPIRY_CRITICAL_DAYS) return "critical";
+  if (daysLeft <= EXPIRY_WARNING_DAYS) return "warning";
+  return "ok";
+}
+
+export function expiryLabel(daysLeft: number): string {
+  if (daysLeft < 0) return `Expired ${Math.abs(daysLeft)}d ago`;
+  if (daysLeft === 0) return "Expires today";
+  return `Expires in ${daysLeft}d`;
+}
+
+export const EXPIRY_TONE_CLASS: Record<Exclude<ExpiryTone, "ok">, string> = {
+  expired: "border-destructive/50 text-destructive",
+  critical: "border-destructive/40 text-destructive",
+  warning: "border-primary/50 text-primary",
+};
+
 
 export const CLEARANCE_MESSAGE: Record<ClearanceReason, string> = {
   profile_missing: "No notary profile is on record for this account.",
