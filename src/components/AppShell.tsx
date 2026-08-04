@@ -2,7 +2,10 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ExpiryCountBadge } from "@/components/ExpiryAlerts";
+import type { ExpiringItem } from "@/lib/clearance";
 import { cn } from "@/lib/utils";
+
 
 const NAV = [
   { to: "/dashboard", label: "Registry" },
