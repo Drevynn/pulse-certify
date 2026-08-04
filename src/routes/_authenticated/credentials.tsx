@@ -191,6 +191,9 @@ function CredentialVault() {
         )}
       </section>
 
+      <ExpiryNotices expiring={clearance?.expiring ?? []} className="mt-4" />
+
+
       <div className="mt-10 grid gap-8 lg:grid-cols-[380px_1fr] lg:items-start">
         <section className="vault-panel p-7">
           <h2 className="text-2xl">File a credential copy</h2>
