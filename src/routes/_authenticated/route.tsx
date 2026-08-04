@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
+import { useExpiryAlerts } from "@/components/ExpiryAlerts";
 import { getMyProfile } from "@/lib/notary.functions";
+import { getMyClearance } from "@/lib/credentials.functions";
 import { getMyRoles } from "@/lib/registrar.functions";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -28,9 +30,21 @@ function AuthenticatedLayout() {
   const { data: roleData } = useQuery({ queryKey: ["roles"], queryFn: () => fetchRoles() });
   const isRegistrar = (roleData?.roles ?? []).some((r) => r === "registrar" || r === "admin");
 
+  const fetchClearance = useServerFn(getMyClearance);
+  const { data: clearance } = useQuery({
+    queryKey: ["clearance"],
+    queryFn: () => fetchClearance(),
+  });
+  useExpiryAlerts(clearance);
+
   return (
-    <AppShell notaryIdNumber={profile?.notary_id_number} isRegistrar={isRegistrar}>
+    <AppShell
+      notaryIdNumber={profile?.notary_id_number}
+      isRegistrar={isRegistrar}
+      expiring={clearance?.expiring ?? []}
+    >
       <Outlet />
     </AppShell>
   );
 }
+
