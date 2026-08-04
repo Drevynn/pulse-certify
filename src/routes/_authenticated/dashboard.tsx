@@ -10,6 +10,8 @@ import {
 } from "@/lib/notary.functions";
 import { getMyClearance } from "@/lib/credentials.functions";
 import { CLEARANCE_MESSAGE } from "@/lib/clearance";
+import { ExpiryBadge, ExpiryNotices } from "@/components/ExpiryAlerts";
+
 import { hashFile } from "@/lib/hash";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
