@@ -25,7 +25,10 @@ export async function evaluateClearance(
       .select("is_certified, commission_state, commission_expires_on")
       .eq("id", userId)
       .maybeSingle(),
-    supabase.from("notary_credentials").select("status, expires_on").eq("user_id", userId),
+    supabase
+      .from("notary_credentials")
+      .select("id, kind, status, expires_on")
+      .eq("user_id", userId),
   ]);
 
   const rows: any[] = credentials ?? [];
@@ -44,6 +47,28 @@ export async function evaluateClearance(
   if (verified.length === 0) reasons.push("no_verified_credential");
   else if (liveVerified.length === 0) reasons.push("credentials_expired");
 
+  // Anything expired or inside the warning window is surfaced as an alert so a
+  // notary can re-file before registry access lapses.
+  const expiring: ExpiringItem[] = [];
+  const consider = (id: string, kind: string, label: string, expiresOn?: string | null) => {
+    if (!expiresOn) return;
+    const daysLeft = daysUntil(expiresOn);
+    const tone = expiryTone(daysLeft);
+    if (tone === "ok") return;
+    expiring.push({ id, kind, label, expiresOn, daysLeft, tone });
+  };
+
+  consider("commission", "commission", "Commission of record", profile?.commission_expires_on);
+  for (const row of verified) {
+    consider(
+      row.id,
+      row.kind,
+      CREDENTIAL_KIND_LABEL[row.kind] ?? row.kind,
+      row.expires_on,
+    );
+  }
+  expiring.sort((a, b) => a.daysLeft - b.daysLeft);
+
   return {
     cleared: reasons.length === 0,
     reasons,
@@ -53,5 +78,7 @@ export async function evaluateClearance(
     verifiedCredentials: liveVerified.length,
     pendingCredentials: rows.filter((r) => r.status === "pending").length,
     rejectedCredentials: rows.filter((r) => r.status === "rejected").length,
+    expiring,
   };
+
 }
