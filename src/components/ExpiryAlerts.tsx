@@ -64,11 +64,12 @@ export function ExpiryCountBadge({ expiring }: { expiring: ExpiringItem[] }) {
  */
 export function useExpiryAlerts(clearance?: Clearance | null) {
   const seen = useRef<Set<string>>(new Set());
+  const { settings } = useExpirySettings();
 
   useEffect(() => {
-    const items = clearance?.expiring ?? [];
+    const items = applyExpirySettings(clearance?.expiring ?? [], settings);
     for (const item of items) {
-      const key = `pulseip.expiry.${item.id}.${item.expiresOn}`;
+      const key = `pulseip.expiry.${item.id}.${item.expiresOn}.${item.tone}`;
       if (seen.current.has(key)) continue;
       seen.current.add(key);
       if (typeof window !== "undefined") {
@@ -85,18 +86,24 @@ export function useExpiryAlerts(clearance?: Clearance | null) {
         );
       }
     }
-  }, [clearance]);
+  }, [clearance, settings]);
 }
 
 /** Standing banner listing everything expired or nearing expiry. */
 export function ExpiryNotices({
-  expiring,
+  expiring: rawExpiring,
   className,
 }: {
   expiring: ExpiringItem[];
   className?: string;
 }) {
+  const { settings } = useExpirySettings();
+  const expiring = useMemo(
+    () => applyExpirySettings(rawExpiring, settings),
+    [rawExpiring, settings],
+  );
   if (expiring.length === 0) return null;
+
   const critical = expiring.some((e) => e.tone !== "warning");
   return (
     <section
