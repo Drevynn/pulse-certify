@@ -151,7 +151,7 @@ function RegistrarReview() {
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <ExpiryBadge expiresOn={c.expires_on} />
+                        <ExpiryBadge expiresOn={c.expires_on} kind={c.kind} />
                         <Badge variant="outline">{c.status}</Badge>
                       </div>
 

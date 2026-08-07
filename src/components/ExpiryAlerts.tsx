@@ -1,27 +1,35 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import {
   EXPIRY_TONE_CLASS,
   daysUntil,
   expiryLabel,
-  expiryTone,
   type Clearance,
   type ExpiringItem,
 } from "@/lib/clearance";
+import {
+  applyExpirySettings,
+  toneWithSettings,
+  useExpirySettings,
+} from "@/lib/expiry-settings";
 import { cn } from "@/lib/utils";
 
 /** Badge for a single dated credential / commission. Renders nothing when far from expiry. */
 export function ExpiryBadge({
   expiresOn,
+  kind = "commission",
   className,
 }: {
   expiresOn?: string | null;
+  /** "commission" or a credential kind — selects the configured threshold. */
+  kind?: string;
   className?: string;
 }) {
+  const { settings } = useExpirySettings();
   if (!expiresOn) return null;
   const daysLeft = daysUntil(expiresOn);
-  const tone = expiryTone(daysLeft);
+  const tone = toneWithSettings(daysLeft, settings, kind);
   if (tone === "ok") return null;
   return (
     <Badge variant="outline" className={cn(EXPIRY_TONE_CLASS[tone], className)}>
@@ -32,8 +40,10 @@ export function ExpiryBadge({
 
 /** Compact roll-up badge, e.g. next to the Credentials nav item. */
 export function ExpiryCountBadge({ expiring }: { expiring: ExpiringItem[] }) {
-  if (expiring.length === 0) return null;
-  const worst = expiring[0]!;
+  const { settings } = useExpirySettings();
+  const items = useMemo(() => applyExpirySettings(expiring, settings), [expiring, settings]);
+  if (items.length === 0) return null;
+  const worst = items[0]!;
   return (
     <span
       className={cn(
@@ -42,10 +52,11 @@ export function ExpiryCountBadge({ expiring }: { expiring: ExpiringItem[] }) {
       )}
       title={`${worst.label} — ${expiryLabel(worst.daysLeft)}`}
     >
-      {expiring.length}
+      {items.length}
     </span>
   );
 }
+
 
 /**
  * Raises a toast alert once per browser session for each credential or
@@ -53,11 +64,12 @@ export function ExpiryCountBadge({ expiring }: { expiring: ExpiringItem[] }) {
  */
 export function useExpiryAlerts(clearance?: Clearance | null) {
   const seen = useRef<Set<string>>(new Set());
+  const { settings } = useExpirySettings();
 
   useEffect(() => {
-    const items = clearance?.expiring ?? [];
+    const items = applyExpirySettings(clearance?.expiring ?? [], settings);
     for (const item of items) {
-      const key = `pulseip.expiry.${item.id}.${item.expiresOn}`;
+      const key = `pulseip.expiry.${item.id}.${item.expiresOn}.${item.tone}`;
       if (seen.current.has(key)) continue;
       seen.current.add(key);
       if (typeof window !== "undefined") {
@@ -74,18 +86,24 @@ export function useExpiryAlerts(clearance?: Clearance | null) {
         );
       }
     }
-  }, [clearance]);
+  }, [clearance, settings]);
 }
 
 /** Standing banner listing everything expired or nearing expiry. */
 export function ExpiryNotices({
-  expiring,
+  expiring: rawExpiring,
   className,
 }: {
   expiring: ExpiringItem[];
   className?: string;
 }) {
+  const { settings } = useExpirySettings();
+  const expiring = useMemo(
+    () => applyExpirySettings(rawExpiring, settings),
+    [rawExpiring, settings],
+  );
   if (expiring.length === 0) return null;
+
   const critical = expiring.some((e) => e.tone !== "warning");
   return (
     <section

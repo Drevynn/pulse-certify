@@ -10,8 +10,10 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/dashboard", label: "Registry" },
   { to: "/credentials", label: "Credentials" },
+  { to: "/settings", label: "Alerts" },
   { to: "/verify", label: "Public lookup" },
 ];
+
 
 export function AppShell({
   children,

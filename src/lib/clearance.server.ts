@@ -43,16 +43,17 @@ export async function evaluateClearance(
   if (verified.length === 0) reasons.push("no_verified_credential");
   else if (liveVerified.length === 0) reasons.push("credentials_expired");
 
-  // Anything expired or inside the warning window is surfaced as an alert so a
-  // notary can re-file before registry access lapses.
+  // Anything expired or inside the widest configurable window (365d) is
+  // surfaced; the UI re-tones and filters against the notary's own thresholds.
   const expiring: ExpiringItem[] = [];
   const consider = (id: string, kind: string, label: string, expiresOn?: string | null) => {
     if (!expiresOn) return;
     const daysLeft = daysUntil(expiresOn);
+    if (daysLeft > 365) return;
     const tone = expiryTone(daysLeft);
-    if (tone === "ok") return;
-    expiring.push({ id, kind, label, expiresOn, daysLeft, tone });
+    expiring.push({ id, kind, label, expiresOn, daysLeft, tone: tone === "ok" ? "warning" : tone });
   };
+
 
   consider("commission", "commission", "Commission of record", profile?.commission_expires_on);
   for (const row of verified) {
