@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/settings")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SettingsPage;
+  component: SettingsPage,
 });
 
 function SettingsPage() {
