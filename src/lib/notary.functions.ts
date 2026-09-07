@@ -279,7 +279,9 @@ export const recordAttestation = createServerFn({ method: "POST" })
       `${data.notarizationId}|${signer.notary_id_number}|${matter.document_hash}|${data.decision}|${attestedAt}`,
     );
 
-    const { error: updateError } = await context.supabase
+    // System-controlled attestation columns are service-role-only writes; the
+    // caller's own grant covers nothing but the free-text note.
+    const { error: updateError } = await supabaseAdmin
       .from("notarization_signers")
       .update({
         status: data.decision,
@@ -287,7 +289,9 @@ export const recordAttestation = createServerFn({ method: "POST" })
         attestation_note: data.note || null,
         attested_at: attestedAt,
       })
-      .eq("id", signer.id);
+      .eq("id", signer.id)
+      .eq("notary_user_id", context.userId)
+      .eq("status", "pending");
     if (updateError) throw new Error(updateError.message);
 
     await engine.appendBlock({
