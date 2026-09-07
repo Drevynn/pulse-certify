@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedRenewalsRouteImport } from './routes/_authenticated/renewals'
 import { Route as AuthenticatedRegistrarRouteImport } from './routes/_authenticated/registrar'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCredentialsRouteImport } from './routes/_authenticated/credentials'
@@ -49,6 +50,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRenewalsRoute = AuthenticatedRenewalsRouteImport.update({
+  id: '/renewals',
+  path: '/renewals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRegistrarRoute = AuthenticatedRegistrarRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/registrar': typeof AuthenticatedRegistrarRoute
+  '/renewals': typeof AuthenticatedRenewalsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/matters/$id': typeof AuthenticatedMattersIdRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/credentials': typeof AuthenticatedCredentialsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/registrar': typeof AuthenticatedRegistrarRoute
+  '/renewals': typeof AuthenticatedRenewalsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/matters/$id': typeof AuthenticatedMattersIdRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/_authenticated/credentials': typeof AuthenticatedCredentialsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/registrar': typeof AuthenticatedRegistrarRoute
+  '/_authenticated/renewals': typeof AuthenticatedRenewalsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/certificate/$id': typeof AuthenticatedCertificateIdRoute
   '/_authenticated/matters/$id': typeof AuthenticatedMattersIdRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/credentials'
     | '/dashboard'
     | '/registrar'
+    | '/renewals'
     | '/settings'
     | '/certificate/$id'
     | '/matters/$id'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/credentials'
     | '/dashboard'
     | '/registrar'
+    | '/renewals'
     | '/settings'
     | '/certificate/$id'
     | '/matters/$id'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/_authenticated/credentials'
     | '/_authenticated/dashboard'
     | '/_authenticated/registrar'
+    | '/_authenticated/renewals'
     | '/_authenticated/settings'
     | '/_authenticated/certificate/$id'
     | '/_authenticated/matters/$id'
@@ -220,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/renewals': {
+      id: '/_authenticated/renewals'
+      path: '/renewals'
+      fullPath: '/renewals'
+      preLoaderRoute: typeof AuthenticatedRenewalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/registrar': {
       id: '/_authenticated/registrar'
       path: '/registrar'
@@ -269,6 +288,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCredentialsRoute: typeof AuthenticatedCredentialsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedRegistrarRoute: typeof AuthenticatedRegistrarRoute
+  AuthenticatedRenewalsRoute: typeof AuthenticatedRenewalsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedCertificateIdRoute: typeof AuthenticatedCertificateIdRoute
   AuthenticatedMattersIdRoute: typeof AuthenticatedMattersIdRoute
@@ -279,6 +299,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCredentialsRoute: AuthenticatedCredentialsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedRegistrarRoute: AuthenticatedRegistrarRoute,
+  AuthenticatedRenewalsRoute: AuthenticatedRenewalsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedCertificateIdRoute: AuthenticatedCertificateIdRoute,
   AuthenticatedMattersIdRoute: AuthenticatedMattersIdRoute,
