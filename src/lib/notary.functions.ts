@@ -181,6 +181,20 @@ export const createNotarization = createServerFn({ method: "POST" })
       throw new Error(`Unknown notary identifier(s): ${unknown.join(", ")}`);
     }
 
+    // Every co-signer must clear the same admission gate as the filer. The
+    // panel insert runs with the service role, so this check stands in for the
+    // is_cleared_notary() test the row-level policy would otherwise apply.
+    const ineligible: string[] = [];
+    for (const c of coSigners ?? []) {
+      const coClearance = await evaluateClearance(supabaseAdmin, c.id);
+      if (!coClearance.cleared) ineligible.push(c.notary_id_number);
+    }
+    if (ineligible.length) {
+      throw new Error(
+        `Not cleared to act on a panel: ${ineligible.join(", ")}. Each panel notary must be certified, in-commission, and hold a verified, unexpired credential.`,
+      );
+    }
+
     const totalSigners = 1 + (coSigners?.length ?? 0);
     const required = Math.min(data.requiredAttestations, totalSigners);
 
@@ -202,7 +216,7 @@ export const createNotarization = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     const contractAddress = await engine.deriveContractAddress(matter.id);
-    await context.supabase
+    await supabaseAdmin
       .from("notarizations")
       .update({ contract_address: contractAddress })
       .eq("id", matter.id);
