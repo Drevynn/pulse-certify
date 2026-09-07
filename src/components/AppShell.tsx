@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/dashboard", label: "Registry" },
   { to: "/credentials", label: "Credentials" },
+  { to: "/renewals", label: "Renewals" },
   { to: "/settings", label: "Alerts" },
   { to: "/verify", label: "Public lookup" },
 ];
