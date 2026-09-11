@@ -2,6 +2,7 @@ export type ClearanceReason =
   | "profile_missing"
   | "not_certified"
   | "commission_expired"
+  | "commission_not_in_state_registry"
   | "no_verified_credential"
   | "credentials_expired";
 
@@ -28,6 +29,13 @@ export type Clearance = {
   isCertified: boolean;
   commissionState: string | null;
   commissionExpiresOn: string | null;
+  /**
+   * State-registry cross-check: "unavailable" when the state has not been
+   * imported yet, "matched" when an active registry record confirms the
+   * commission, "no_match" when the state registry holds records but none
+   * confirm this notary.
+   */
+  registryCheck: "unavailable" | "matched" | "no_match";
   verifiedCredentials: number;
   pendingCredentials: number;
   rejectedCredentials: number;
@@ -66,6 +74,8 @@ export const CLEARANCE_MESSAGE: Record<ClearanceReason, string> = {
   profile_missing: "No notary profile is on record for this account.",
   not_certified: "Your commission has not been certified by a registrar yet.",
   commission_expired: "Your commission of record has expired.",
+  commission_not_in_state_registry:
+    "Your commission could not be confirmed against the state notary registry. File your current commission certificate or contact a registrar.",
   no_verified_credential:
     "No credential copy has been verified by a registrar. File a copy of your commission certificate.",
   credentials_expired: "Every credential copy on file has passed its expiry date.",

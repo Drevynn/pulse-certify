@@ -308,6 +308,39 @@ export type Database = {
           },
         ]
       }
+      state_commission_registry: {
+        Row: {
+          commission_number: string
+          expires_on: string | null
+          id: string
+          notary_name: string
+          source: string | null
+          state: string
+          status: string
+          synced_at: string
+        }
+        Insert: {
+          commission_number: string
+          expires_on?: string | null
+          id?: string
+          notary_name: string
+          source?: string | null
+          state: string
+          status?: string
+          synced_at?: string
+        }
+        Update: {
+          commission_number?: string
+          expires_on?: string | null
+          id?: string
+          notary_name?: string
+          source?: string | null
+          state?: string
+          status?: string
+          synced_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
