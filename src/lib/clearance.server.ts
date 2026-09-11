@@ -18,7 +18,7 @@ export async function evaluateClearance(
   const [{ data: profile }, { data: credentials }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("is_certified, commission_state, commission_expires_on")
+      .select("full_name, is_certified, commission_state, commission_expires_on")
       .eq("id", userId)
       .maybeSingle(),
     supabase
@@ -32,6 +32,32 @@ export async function evaluateClearance(
   const verified = rows.filter((r) => r.status === "verified");
   const liveVerified = verified.filter((r) => !r.expires_on || r.expires_on >= today);
 
+  // Cross-check the commission against the imported state registry. When the
+  // state has not been imported yet the check is inert ("unavailable"); once
+  // records exist for the state, an unconfirmed commission blocks clearance.
+  let registryCheck: Clearance["registryCheck"] = "unavailable";
+  if (profile?.commission_state) {
+    const { data: registryRows } = await (supabase as any)
+      .from("state_commission_registry")
+      .select("commission_number, notary_name, status, expires_on")
+      .ilike("state", profile.commission_state.trim());
+    const registry: any[] = registryRows ?? [];
+    if (registry.length > 0) {
+      const name = (profile.full_name ?? "").trim().toLowerCase();
+      const match = registry.find((r) => {
+        const regName = (r.notary_name ?? "").trim().toLowerCase();
+        const nameMatches =
+          name.length > 0 && (regName.includes(name) || name.includes(regName));
+        const expiryMatches =
+          profile.commission_expires_on && r.expires_on === profile.commission_expires_on;
+        return nameMatches || expiryMatches;
+      });
+      const confirmed =
+        match && match.status === "active" && (!match.expires_on || match.expires_on >= today);
+      registryCheck = confirmed ? "matched" : "no_match";
+    }
+  }
+
   const reasons: ClearanceReason[] = [];
   if (!profile) reasons.push("profile_missing");
   else {
@@ -39,6 +65,7 @@ export async function evaluateClearance(
     if (profile.commission_expires_on && profile.commission_expires_on < today) {
       reasons.push("commission_expired");
     }
+    if (registryCheck === "no_match") reasons.push("commission_not_in_state_registry");
   }
   if (verified.length === 0) reasons.push("no_verified_credential");
   else if (liveVerified.length === 0) reasons.push("credentials_expired");
@@ -72,6 +99,7 @@ export async function evaluateClearance(
     isCertified: Boolean(profile?.is_certified),
     commissionState: profile?.commission_state ?? null,
     commissionExpiresOn: profile?.commission_expires_on ?? null,
+    registryCheck,
     verifiedCredentials: liveVerified.length,
     pendingCredentials: rows.filter((r) => r.status === "pending").length,
     rejectedCredentials: rows.filter((r) => r.status === "rejected").length,
