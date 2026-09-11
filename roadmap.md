@@ -1,4 +1,6 @@
 # Roadmap
 
 - [x] Notary renewal portal (`/renewals`) with expiry badges + alerts
-- [ ] Wire registrar bench to a real state notary database (awaiting user's answers: data source, states, failure behaviour)
+- [x] State registry cross-check: `state_commission_registry` table, registrar CSV import, automatic commission confirmation in clearance
+- [x] Terms of Service + Privacy Policy (recording-platform framing) at `/terms` and `/privacy`
+- [ ] Optional: automate state registry sync from an official data feed once a source is chosen (currently registrar-imported extracts)

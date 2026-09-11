@@ -199,9 +199,10 @@ function Landing() {
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-10 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <span>© {new Date().getFullYear()} Pulse IP Registry</span>
-          <span className="sm:ml-auto font-mono">
-            Registry contracts are deterministic per matter.
+          <span>© {new Date().getFullYear()} Pulse IP — a recording platform, not a notary service</span>
+          <span className="flex gap-4 sm:ml-auto">
+            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
           </span>
         </div>
       </footer>

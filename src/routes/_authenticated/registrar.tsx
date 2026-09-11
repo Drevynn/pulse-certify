@@ -6,9 +6,11 @@ import { toast } from "sonner";
 import { ExpiryBadge } from "@/components/ExpiryAlerts";
 
 import {
+  importStateRegistry,
   listCredentialQueue,
   reviewCredential,
   setCommission,
+  type RegistryStatus,
 } from "@/lib/registrar.functions";
 import { getCredentialFileLink } from "@/lib/credentials.functions";
 import { CREDENTIAL_KIND_LABEL } from "@/lib/clearance";
@@ -44,6 +46,18 @@ function RegistrarReview() {
   const review = useServerFn(reviewCredential);
   const commission = useServerFn(setCommission);
   const openLink = useServerFn(getCredentialFileLink);
+  const importRegistry = useServerFn(importStateRegistry);
+
+  const [importText, setImportText] = useState("");
+  const importRows = useMutation({
+    mutationFn: (rows: any[]) => importRegistry({ data: { rows } }),
+    onSuccess: (r) => {
+      toast.success(`Imported ${r.imported} registry records`);
+      setImportText("");
+      queryClient.invalidateQueries({ queryKey: ["credential-queue"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["credential-queue"],
@@ -118,8 +132,52 @@ function RegistrarReview() {
         <p className="mt-10 text-sm text-muted-foreground">Loading the queue…</p>
       ) : byNotary.length === 0 ? (
         <p className="mt-10 text-sm text-muted-foreground">No credentials have been filed yet.</p>
-      ) : (
+       ) : (
         <div className="mt-10 space-y-6">
+          <details className="vault-panel p-6">
+            <summary className="cursor-pointer text-sm">Import a state registry extract</summary>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              Paste one record per line:{" "}
+              <span className="font-mono">State, Commission number, Notary name, Status, YYYY-MM-DD</span>.
+              Status is one of active, expired, suspended, revoked. Imported records are used to
+              confirm every notary's commission automatically.
+            </p>
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={5}
+              className="mt-3 w-full rounded-md border border-border bg-background p-3 font-mono text-xs"
+              placeholder={"New York, 01WH6123456, Adaeze N. Whitfield, active, 2028-04-30"}
+            />
+            <Button
+              size="sm"
+              className="mt-3"
+              disabled={importRows.isPending || !importText.trim()}
+              onClick={() => {
+                try {
+                  const rows = importText
+                    .split("\n")
+                    .map((l) => l.trim())
+                    .filter(Boolean)
+                    .map((l) => {
+                      const [state, commissionNumber, notaryName, status, expiresOn] = l
+                        .split(",")
+                        .map((p) => p.trim());
+                      if (!state || !commissionNumber || !notaryName || !status) {
+                        throw new Error(`Malformed line: ${l}`);
+                      }
+                      return { state, commissionNumber, notaryName, status, expiresOn: expiresOn || null };
+                    });
+                  importRows.mutate(rows);
+                } catch (e) {
+                  toast.error((e as Error).message);
+                }
+              }}
+            >
+              Import records
+            </Button>
+          </details>
+
           {byNotary.map(({ profile, items }: any) => (
             <section key={profile.id} className="vault-panel p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -130,9 +188,12 @@ function RegistrarReview() {
                     {profile.commission_state ? ` · ${profile.commission_state}` : ""}
                   </p>
                 </div>
-                <Badge variant="outline" className={profile.is_certified ? "text-verdigris" : ""}>
-                  {profile.is_certified ? "Certified" : "Not certified"}
-                </Badge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <RegistryLine status={data?.registry?.[profile.id]} />
+                  <Badge variant="outline" className={profile.is_certified ? "text-verdigris" : ""}>
+                    {profile.is_certified ? "Certified" : "Not certified"}
+                  </Badge>
+                </div>
               </div>
 
               <ul className="mt-5 space-y-4">
@@ -193,6 +254,37 @@ function RegistrarReview() {
         </div>
       )}
     </main>
+  );
+}
+
+function RegistryLine({ status }: { status?: RegistryStatus }) {
+  if (!status || status.totalInState === 0) {
+    return (
+      <Badge variant="outline" className="text-muted-foreground">
+        State registry not imported
+      </Badge>
+    );
+  }
+  if (status.confirmed && status.match) {
+    return (
+      <Badge variant="outline" className="text-verdigris">
+        Registry confirmed · {status.match.commissionNumber}
+        {status.match.expiresOn ? ` · exp ${status.match.expiresOn}` : ""}
+      </Badge>
+    );
+  }
+  if (status.match) {
+    return (
+      <Badge variant="outline" className="text-destructive">
+        Registry lists {status.match.status}
+        {status.match.expiresOn ? ` · exp ${status.match.expiresOn}` : ""}
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="text-destructive">
+      Not found in state registry
+    </Badge>
   );
 }
 

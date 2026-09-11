@@ -211,6 +211,19 @@ function AuthPage() {
               {mode === "signin" ? "Enrol" : "Sign in"}
             </button>
           </p>
+
+          <p className="mt-8 text-center text-[11px] leading-relaxed text-muted-foreground">
+            Pulse IP is a recording platform, not a notary service. By continuing you agree
+            to the{" "}
+            <Link to="/terms" className="text-primary underline-offset-4 hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="text-primary underline-offset-4 hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </div>
       </section>
     </main>
