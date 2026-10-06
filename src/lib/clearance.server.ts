@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Clearance, ClearanceReason, ExpiringItem } from "./clearance";
 import { CREDENTIAL_KIND_LABEL, daysUntil, expiryTone } from "./clearance";
+import { lookupLive } from "./state-registry.server";
 
 
 
@@ -36,7 +37,27 @@ export async function evaluateClearance(
   // state has not been imported yet the check is inert ("unavailable"); once
   // records exist for the state, an unconfirmed commission blocks clearance.
   let registryCheck: Clearance["registryCheck"] = "unavailable";
-  if (profile?.commission_state) {
+  if (profile?.commission_state && profile.full_name) {
+    // Pull fresh records from the live state feed (if one exists) and cache them.
+    try {
+      const live = await lookupLive(profile.commission_state, profile.full_name);
+      if (live && live.length > 0) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await (supabaseAdmin as any)
+          .from("state_commission_registry")
+          .upsert(
+            live.map((r) => ({ ...r, synced_at: new Date().toISOString() })),
+            { onConflict: "state,commission_number" },
+          );
+      } else if (live && live.length === 0) {
+        // Live feed answered and the notary is absent: treat as unconfirmed.
+        registryCheck = "no_match";
+      }
+    } catch (e) {
+      console.error("live registry lookup failed", e);
+    }
+  }
+  if (profile?.commission_state && registryCheck === "unavailable") {
     const { data: registryRows } = await (supabase as any)
       .from("state_commission_registry")
       .select("commission_number, notary_name, status, expires_on")

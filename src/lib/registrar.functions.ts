@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { lookupLive } from "./state-registry.server";
 
 async function assertRegistrar(context: any) {
   const { data } = await context.supabase
@@ -67,6 +68,25 @@ async function registryStatusForProfiles(
   const states = [...new Set(profiles.map((p) => p.commission_state?.trim()).filter(Boolean))];
   const result: Record<string, RegistryStatus> = {};
   if (states.length === 0) return result;
+
+  // Refresh from live state feeds before comparing.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await Promise.all(
+    profiles.map(async (p) => {
+      if (!p.commission_state || !p.full_name) return;
+      try {
+        const live = await lookupLive(p.commission_state, p.full_name);
+        if (live?.length) {
+          await (supabaseAdmin as any).from("state_commission_registry").upsert(
+            live.map((r) => ({ ...r, synced_at: new Date().toISOString() })),
+            { onConflict: "state,commission_number" },
+          );
+        }
+      } catch (e) {
+        console.error("live registry lookup failed", e);
+      }
+    }),
+  );
 
   const { data: rows } = await supabase
     .from("state_commission_registry")
