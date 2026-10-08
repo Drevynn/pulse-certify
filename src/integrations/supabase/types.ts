@@ -10,10 +10,52 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      commission_verification_log: {
+        Row: {
+          checked_at: string
+          commission_number: string | null
+          id: string
+          previous_result: string | null
+          registry_expires_on: string | null
+          registry_status: string | null
+          result: string
+          source: string
+          state: string
+          status_changed: boolean
+          user_id: string
+        }
+        Insert: {
+          checked_at?: string
+          commission_number?: string | null
+          id?: string
+          previous_result?: string | null
+          registry_expires_on?: string | null
+          registry_status?: string | null
+          result: string
+          source: string
+          state: string
+          status_changed?: boolean
+          user_id: string
+        }
+        Update: {
+          checked_at?: string
+          commission_number?: string | null
+          id?: string
+          previous_result?: string | null
+          registry_expires_on?: string | null
+          registry_status?: string | null
+          result?: string
+          source?: string
+          state?: string
+          status_changed?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       ledger_blocks: {
         Row: {
           actor_id_number: string | null

@@ -4,9 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ExpiryBadge } from "@/components/ExpiryAlerts";
+import { VerificationHistory } from "@/components/VerificationHistory";
 
 import {
-  importStateRegistry,
   listCredentialQueue,
   reviewCredential,
   setCommission,
@@ -204,6 +204,12 @@ function RegistrarReview() {
               </ul>
 
               <CommissionForm profile={profile} onSubmit={certify.mutate} pending={certify.isPending} />
+              <details className="mt-5 border-t border-border pt-5">
+                <summary className="cursor-pointer text-sm">Verification audit history</summary>
+                <div className="mt-3">
+                  <VerificationHistory userId={profile.id} />
+                </div>
+              </details>
             </section>
           ))}
         </div>

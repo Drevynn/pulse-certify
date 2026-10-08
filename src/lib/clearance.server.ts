@@ -3,6 +3,39 @@ import type { Clearance, ClearanceReason, ExpiringItem } from "./clearance";
 import { CREDENTIAL_KIND_LABEL, daysUntil, expiryTone } from "./clearance";
 import { lookupLive } from "./state-registry.server";
 
+/** Append-only audit of every commission verification; flags result changes. */
+async function logVerification(
+  userId: string,
+  state: string,
+  source: string,
+  result: string,
+  match: any,
+) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prev } = await (supabaseAdmin as any)
+      .from("commission_verification_log")
+      .select("result")
+      .eq("user_id", userId)
+      .order("checked_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    await (supabaseAdmin as any).from("commission_verification_log").insert({
+      user_id: userId,
+      state,
+      source,
+      result,
+      previous_result: prev?.result ?? null,
+      status_changed: Boolean(prev && prev.result !== result),
+      commission_number: match?.commission_number ?? null,
+      registry_status: match?.status ?? null,
+      registry_expires_on: match?.expires_on ?? null,
+    });
+  } catch (e) {
+    console.error("verification log failed", e);
+  }
+}
+
 
 
 /**
@@ -37,10 +70,13 @@ export async function evaluateClearance(
   // state has not been imported yet the check is inert ("unavailable"); once
   // records exist for the state, an unconfirmed commission blocks clearance.
   let registryCheck: Clearance["registryCheck"] = "unavailable";
+  let source = "none";
+  let matchRow: any = null;
   if (profile?.commission_state && profile.full_name) {
     // Pull fresh records from the live state feed (if one exists) and cache them.
     try {
       const live = await lookupLive(profile.commission_state, profile.full_name);
+      if (live) source = live[0]?.source ?? `live:${profile.commission_state}`;
       if (live && live.length > 0) {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         await (supabaseAdmin as any)
@@ -54,13 +90,14 @@ export async function evaluateClearance(
         registryCheck = "no_match";
       }
     } catch (e) {
+      source = "live feed error";
       console.error("live registry lookup failed", e);
     }
   }
   if (profile?.commission_state && registryCheck === "unavailable") {
     const { data: registryRows } = await (supabase as any)
       .from("state_commission_registry")
-      .select("commission_number, notary_name, status, expires_on")
+      .select("commission_number, notary_name, status, expires_on, source")
       .ilike("state", profile.commission_state.trim());
     const registry: any[] = registryRows ?? [];
     if (registry.length > 0) {
@@ -73,10 +110,16 @@ export async function evaluateClearance(
           profile.commission_expires_on && r.expires_on === profile.commission_expires_on;
         return nameMatches || expiryMatches;
       });
+      matchRow = match ?? null;
+      if (source === "none") source = match?.source ?? "registry cache";
       const confirmed =
         match && match.status === "active" && (!match.expires_on || match.expires_on >= today);
       registryCheck = confirmed ? "matched" : "no_match";
     }
+  }
+
+  if (profile?.commission_state) {
+    await logVerification(userId, profile.commission_state, source, registryCheck, matchRow);
   }
 
   const reasons: ClearanceReason[] = [];
