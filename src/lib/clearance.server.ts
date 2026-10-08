@@ -3,6 +3,39 @@ import type { Clearance, ClearanceReason, ExpiringItem } from "./clearance";
 import { CREDENTIAL_KIND_LABEL, daysUntil, expiryTone } from "./clearance";
 import { lookupLive } from "./state-registry.server";
 
+/** Append-only audit of every commission verification; flags result changes. */
+async function logVerification(
+  userId: string,
+  state: string,
+  source: string,
+  result: string,
+  match: any,
+) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prev } = await (supabaseAdmin as any)
+      .from("commission_verification_log")
+      .select("result")
+      .eq("user_id", userId)
+      .order("checked_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    await (supabaseAdmin as any).from("commission_verification_log").insert({
+      user_id: userId,
+      state,
+      source,
+      result,
+      previous_result: prev?.result ?? null,
+      status_changed: Boolean(prev && prev.result !== result),
+      commission_number: match?.commission_number ?? null,
+      registry_status: match?.status ?? null,
+      registry_expires_on: match?.expires_on ?? null,
+    });
+  } catch (e) {
+    console.error("verification log failed", e);
+  }
+}
+
 
 
 /**
