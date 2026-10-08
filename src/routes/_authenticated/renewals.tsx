@@ -11,6 +11,7 @@ import {
 } from "@/lib/clearance";
 import { ExpiryBadge, ExpiryNotices } from "@/components/ExpiryAlerts";
 import { CredentialFiler, type FilerPrefill } from "@/components/CredentialFiler";
+import { VerificationHistory } from "@/components/VerificationHistory";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -212,6 +213,9 @@ function RenewalPortal() {
           ) : null}
         </section>
       </div>
+      <section className="vault-panel mt-8 p-6">
+        <VerificationHistory />
+      </section>
     </main>
   );
 }
