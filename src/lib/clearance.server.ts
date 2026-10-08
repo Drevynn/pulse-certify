@@ -37,10 +37,13 @@ export async function evaluateClearance(
   // state has not been imported yet the check is inert ("unavailable"); once
   // records exist for the state, an unconfirmed commission blocks clearance.
   let registryCheck: Clearance["registryCheck"] = "unavailable";
+  let source = "none";
+  let matchRow: any = null;
   if (profile?.commission_state && profile.full_name) {
     // Pull fresh records from the live state feed (if one exists) and cache them.
     try {
       const live = await lookupLive(profile.commission_state, profile.full_name);
+      if (live) source = live[0]?.source ?? `live:${profile.commission_state}`;
       if (live && live.length > 0) {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         await (supabaseAdmin as any)
@@ -54,13 +57,14 @@ export async function evaluateClearance(
         registryCheck = "no_match";
       }
     } catch (e) {
+      source = "live feed error";
       console.error("live registry lookup failed", e);
     }
   }
   if (profile?.commission_state && registryCheck === "unavailable") {
     const { data: registryRows } = await (supabase as any)
       .from("state_commission_registry")
-      .select("commission_number, notary_name, status, expires_on")
+      .select("commission_number, notary_name, status, expires_on, source")
       .ilike("state", profile.commission_state.trim());
     const registry: any[] = registryRows ?? [];
     if (registry.length > 0) {
@@ -73,10 +77,16 @@ export async function evaluateClearance(
           profile.commission_expires_on && r.expires_on === profile.commission_expires_on;
         return nameMatches || expiryMatches;
       });
+      matchRow = match ?? null;
+      if (source === "none") source = match?.source ?? "registry cache";
       const confirmed =
         match && match.status === "active" && (!match.expires_on || match.expires_on >= today);
       registryCheck = confirmed ? "matched" : "no_match";
     }
+  }
+
+  if (profile?.commission_state) {
+    await logVerification(userId, profile.commission_state, source, registryCheck, matchRow);
   }
 
   const reasons: ClearanceReason[] = [];
