@@ -147,7 +147,7 @@ describe("Pulse IP end-to-end flow", () => {
     const attestationHash = await sha256Hex(`${documentHash}:PN-26-000002`);
     await appendBlock({ admin: fakeClient, notarizationId: matterId, eventType: "attested", actorIdNumber: "PN-26-000002", payload: { attestationHash } });
 
-    const chain = db.ledger_blocks.filter((b) => b.notarization_id === matterId);
+    const chain = db.ledger_blocks.filter((b) => b.notarization_id === matterId) as any[];
     expect(chain).toHaveLength(2);
     expect(verifyChainLinkage(chain)).toEqual({ intact: true, brokenAt: null });
     const root = await merkleRoot(chain.map((b) => b.block_hash));
